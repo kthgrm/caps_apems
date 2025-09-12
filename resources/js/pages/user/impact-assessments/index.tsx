@@ -1,0 +1,105 @@
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import { Award, Plus, Filter, Download, Eye, Edit, Trash2, Globe, Earth, Locate, Map, BarChart } from 'lucide-react';
+
+import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Toaster } from '@/components/ui/sonner';
+import { DataTable } from '@/components/data-table';
+import type { BreadcrumbItem, Award as AwardType, ImpactAssessment } from '@/types';
+import { columns } from './components/columns';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Project Activities',
+        href: '/user/impact-assessments',
+    },
+    {
+        title: 'Impact Assessment',
+        href: '/user/impact-assessments',
+    },
+];
+
+type PageProps = {
+    assessments: ImpactAssessment[];
+    flash?: { message?: string };
+};
+
+export default function ImpactAssessmentList() {
+    const { assessments, flash } = usePage<PageProps>().props;
+
+    useEffect(() => {
+        if (flash?.message) {
+            toast.info(flash.message);
+        }
+    }, [flash?.message]);
+
+    const AssessmentsActions = () => (
+        <div className="flex items-center space-x-2">
+            <Button asChild>
+                <Link href="/user/impact-assessments/create" className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    <span className='hidden lg:block'>Add New Impact Assessment</span>
+                </Link>
+            </Button>
+        </div>
+    );
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Impact Assessments" />
+            <Toaster position="bottom-right" />
+
+            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-medium">Impact Assessments</h1>
+                        <p className="text-muted-foreground">Manage your impact assessment records</p>
+                    </div>
+                </div>
+
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-purple-200/50" />
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                            <CardTitle className="text-sm font-medium">
+                                Total Assessments
+                            </CardTitle>
+                            <BarChart className="h-4 w-4 text-purple-500" />
+                        </CardHeader>
+                        <CardContent className='relative z-10'>
+                            <div className="text-2xl font-bold text-purple-500">{assessments.length}</div>
+                            <p className="text-xs">
+                                Impact assessments conducted
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Impact Assessments Table with Filters */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
+                            Impact Assessments List
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DataTable
+                            columns={columns}
+                            data={assessments}
+                            searchKey="project"
+                            searchPlaceholder="Search projects..."
+                            actionComponent={<AssessmentsActions />}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+        </AppLayout>
+    );
+}
