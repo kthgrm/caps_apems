@@ -61,41 +61,9 @@ export default function TechnologyTransfer() {
                     <h1 className='text-2xl font-bold'>Project Details</h1>
                     <div>
                         <Button variant="destructive" className="w-full justify-start bg-red-800 hover:bg-red-900">
-                            Archive Project
+                            Delete Project
                         </Button>
                     </div>
-                    {/* {project.start_date && (
-                        <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
-                            <span className="text-xs font-medium text-muted-foreground bg-background px-2 py-1 rounded">
-                                Maturity
-                            </span>
-
-                            <span className="text-sm font-semibold text-primary">
-                                {(() => {
-                                    const start = new Date(project.start_date);
-                                    const end = new Date();
-                                    let years = end.getFullYear() - start.getFullYear();
-                                    let months = end.getMonth() - start.getMonth();
-                                    let days = end.getDate() - start.getDate();
-
-                                    if (days < 0) {
-                                        months -= 1;
-                                        days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
-                                    }
-                                    if (months < 0) {
-                                        years -= 1;
-                                        months += 12;
-                                    }
-
-                                    const parts = [];
-                                    if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
-                                    if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
-                                    if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
-                                    return parts.length ? parts.join(', ') : '0 days';
-                                })()}
-                            </span>
-                        </div>
-                    )} */}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -134,9 +134,6 @@ export const columns: ColumnDef<InternationalPartner>[] = [
                                 View details
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="font-light">
-                            Edit partnership
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive">
                             Delete partnership

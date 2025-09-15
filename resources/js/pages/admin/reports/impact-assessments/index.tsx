@@ -176,7 +176,7 @@ const ImpactAssessmentsReportPage: React.FC<PageProps> = ({
 
     // Filter colleges based on selected campus
     const filteredColleges = selectedCampus && selectedCampus !== 'all'
-        ? colleges.filter(college => college.campus_id.toString() === selectedCampus)
+        ? colleges.filter(college => college.campus_id && college.campus_id.toString() === selectedCampus)
         : colleges;
 
     const getSortIcon = (column: string) => {

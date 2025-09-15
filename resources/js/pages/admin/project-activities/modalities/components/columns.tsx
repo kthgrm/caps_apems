@@ -192,9 +192,6 @@ export const columns: ColumnDef<Modalities>[] = [
                                 View details
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="font-light">
-                            Edit modality
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive">
                             Delete modality

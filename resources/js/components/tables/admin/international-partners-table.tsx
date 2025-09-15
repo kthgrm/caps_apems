@@ -1,4 +1,4 @@
-import { Engagement, InternationalPartner } from "@/types"
+import { InternationalPartner } from "@/types"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -101,15 +101,6 @@ export function PartnershipsTable({ partnerships, isLoading }: PartnershipsTable
         </div>
     )
 
-    const PartnershipActions = () => (
-        <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export Report
-            </Button>
-        </div>
-    )
-
     return (
         <DataTable
             columns={columns}
@@ -117,7 +108,6 @@ export function PartnershipsTable({ partnerships, isLoading }: PartnershipsTable
             searchKey="agency_partner"
             searchPlaceholder="Search by agency partner..."
             filterComponent={<PartnershipFilters />}
-            actionComponent={<PartnershipActions />}
             isLoading={isLoading}
         />
     )

@@ -114,9 +114,6 @@ export const columns: ColumnDef<ImpactAssessment>[] = [
                                 View details
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="font-light">
-                            Edit assessment
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive">
                             Delete assessment

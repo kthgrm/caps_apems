@@ -109,9 +109,6 @@ export const columns: ColumnDef<Award>[] = [
                                 View details
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="font-light">
-                            Edit award
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive">
                             Delete award

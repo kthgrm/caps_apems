@@ -75,6 +75,11 @@ export default function ModalityDetails() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Modality Details</h1>
+                    <div>
+                        <Button variant="destructive" className="w-full justify-start bg-red-800 hover:bg-red-900">
+                            Delete Modality
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -321,25 +326,6 @@ export default function ModalityDetails() {
                                         <span>{modality.user.name}</span>
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Quick Actions */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Quick Actions</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                                <Button variant="outline" className="w-full justify-start">
-                                    Edit Modality
-                                </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                    Generate Report
-                                </Button>
-                                <Separator />
-                                <Button variant="destructive" className="w-full justify-start bg-red-800 hover:bg-red-900">
-                                    Delete Modality
-                                </Button>
                             </CardContent>
                         </Card>
                     </div>
