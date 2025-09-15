@@ -1,8 +1,8 @@
 import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app-layout';
 import { Project, type BreadcrumbItem } from '@/types';
-import { Head, usePage, Link } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { Head, usePage, Link, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import InputError from "@/components/input-error";
 
 export default function TechnologyTransfer() {
     const { project, flash } = usePage().props as unknown as {
@@ -48,6 +49,52 @@ export default function TechnologyTransfer() {
         }
     }, [flash?.message]);
 
+    // Archive functionality state
+    const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleArchive = () => {
+        if (!password.trim()) {
+            setErrorMessage('Please enter your password to confirm.');
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage('');
+
+        router.patch(`/admin/technology-transfer/projects/${project.id}/archive`, {
+            password: password
+        }, {
+            onSuccess: () => {
+                setIsArchiveDialogOpen(false);
+                setPassword('');
+                setErrorMessage('');
+                setIsLoading(false);
+                toast.success('Project archived successfully.');
+                // Redirect back to projects list
+                router.visit(`/admin/technology-transfer/${project.campus_college?.campus?.id}/${project.campus_college?.college?.id}/projects`);
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                if (errors.password) {
+                    setErrorMessage(errors.password);
+                } else if (errors.message) {
+                    setErrorMessage(errors.message);
+                } else {
+                    setErrorMessage('Archive failed. Please try again.');
+                }
+            }
+        });
+    };
+
+    const resetArchiveDialog = () => {
+        setIsArchiveDialogOpen(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
     const asset = (path: string) => {
         return `/storage/${path}`;
     }
@@ -60,7 +107,11 @@ export default function TechnologyTransfer() {
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Project Details</h1>
                     <div>
-                        <Button variant="destructive" className="w-full justify-start bg-red-800 hover:bg-red-900">
+                        <Button
+                            variant="destructive"
+                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            onClick={() => setIsArchiveDialogOpen(true)}
+                        >
                             Delete Project
                         </Button>
                     </div>
@@ -434,6 +485,45 @@ export default function TechnologyTransfer() {
                     </div>
                 </div>
             </div>
+
+            {/* Archive Confirmation Dialog */}
+            <Dialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            To permanently delete this project, please enter your password to confirm this action.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !isLoading) {
+                                        handleArchive();
+                                    }
+                                }}
+                            />
+                            {errorMessage && (
+                                <InputError message={errorMessage} className="mt-2" />
+                            )}
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={resetArchiveDialog} disabled={isLoading}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={handleArchive} disabled={isLoading}>
+                            {isLoading ? 'Deleting...' : 'Delete Project'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

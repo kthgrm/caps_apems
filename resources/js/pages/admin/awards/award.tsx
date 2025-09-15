@@ -1,8 +1,8 @@
 import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app-layout';
 import { Award, type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { AwardIcon, Trophy, Users, Building, Calendar, Clock, FileText, Download, User, MapPin, Image } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import InputError from "@/components/input-error";
 
 type PageProps = {
     award: Award;
@@ -50,6 +51,52 @@ export default function AwardsDetails() {
         }
     }, [flash?.message]);
 
+    // Archive functionality state
+    const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleArchive = () => {
+        if (!password.trim()) {
+            setErrorMessage('Please enter your password to confirm.');
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage('');
+
+        router.patch(`/admin/awards-recognition/${award.id}/archive`, {
+            password: password
+        }, {
+            onSuccess: () => {
+                setIsArchiveDialogOpen(false);
+                setPassword('');
+                setErrorMessage('');
+                setIsLoading(false);
+                toast.success('Award archived successfully.');
+                // Redirect back to awards list
+                router.visit(`/admin/awards-recognition/${award.campus_college.campus.id}/${award.campus_college.college.id}/awards`);
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                if (errors.password) {
+                    setErrorMessage(errors.password);
+                } else if (errors.message) {
+                    setErrorMessage(errors.message);
+                } else {
+                    setErrorMessage('Archive failed. Please try again.');
+                }
+            }
+        });
+    };
+
+    const resetArchiveDialog = () => {
+        setIsArchiveDialogOpen(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
     const asset = (path: string) => {
         return `/storage/${path}`;
     }
@@ -70,8 +117,6 @@ export default function AwardsDetails() {
         }
     };
 
-    const daysSinceReceived = Math.floor((new Date().getTime() - new Date(award.date_received).getTime()) / (1000 * 60 * 60 * 24));
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Award Details" />
@@ -80,7 +125,11 @@ export default function AwardsDetails() {
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Award Details</h1>
                     <div>
-                        <Button variant="destructive" className="w-full justify-start bg-red-800 hover:bg-red-900">
+                        <Button
+                            variant="destructive"
+                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            onClick={() => setIsArchiveDialogOpen(true)}
+                        >
                             Delete Award
                         </Button>
                     </div>
@@ -277,6 +326,60 @@ export default function AwardsDetails() {
                     </div>
                 </div>
             </div>
+
+            {/* Archive Confirmation Dialog */}
+            <Dialog open={isArchiveDialogOpen} onOpenChange={(open) => {
+                if (!open) {
+                    resetArchiveDialog();
+                }
+            }}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            You are about to delete the award "{award.award_name}". This action requires password confirmation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-1 items-center gap-4">
+                            <Label htmlFor="password" className="text-sm font-medium">
+                                Password
+                            </Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="col-span-3"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleArchive();
+                                    }
+                                }}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <InputError message={errorMessage} className="col-span-4" />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={resetArchiveDialog}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleArchive}
+                            disabled={isLoading || !password.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout >
     );
 }

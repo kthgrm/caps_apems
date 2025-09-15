@@ -3,9 +3,130 @@ import { InternationalPartner } from '@/types';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Archive, Eye, MoreHorizontal, Handshake } from 'lucide-react';
+import { Archive, Eye, MoreHorizontal, Handshake, Trash } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import InputError from "@/components/input-error";
+import { Link, router } from '@inertiajs/react';
+import { route } from "ziggy-js";
+import { useState } from "react";
+
+// Archive Partnership Component with Password Confirmation
+const ArchivePartnershipButton = ({ partnership }: { partnership: InternationalPartner }) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleArchive = () => {
+        if (!password.trim()) {
+            setErrorMessage('Please enter your password to confirm.');
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage('');
+
+        router.patch(`/admin/international-partners/${partnership.id}/archive`, {
+            password: password
+        }, {
+            onSuccess: () => {
+                setIsDialogOpen(false);
+                setPassword('');
+                setErrorMessage('');
+                setIsLoading(false);
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                if (errors.password) {
+                    setErrorMessage(errors.password);
+                } else if (errors.message) {
+                    setErrorMessage(errors.message);
+                } else {
+                    setErrorMessage('Archive failed. Please try again.');
+                }
+            }
+        });
+    };
+
+    const resetDialog = () => {
+        setIsDialogOpen(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
+    return (
+        <>
+            <DropdownMenuItem
+                variant="destructive"
+                className="flex items-center gap-2"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Small delay to let dropdown close first
+                    setTimeout(() => setIsDialogOpen(true), 100);
+                }}
+            >
+                <Trash className="h-4 w-4" />
+                Delete partnership
+            </DropdownMenuItem>
+
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if (!open) {
+                    resetDialog();
+                }
+            }}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            You are about to delete the partnership with "{partnership.agency_partner}". This action requires password confirmation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-1 items-center gap-4">
+                            <label htmlFor="password" className="text-sm font-medium">
+                                Password
+                            </label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="col-span-3"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleArchive();
+                                    }
+                                }}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <InputError message={errorMessage} className="col-span-4" />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={resetDialog}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleArchive}
+                            disabled={isLoading || !password.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+};
 
 export const columns: ColumnDef<InternationalPartner>[] = [
     {
@@ -135,9 +256,7 @@ export const columns: ColumnDef<InternationalPartner>[] = [
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive">
-                            Delete partnership
-                        </DropdownMenuItem>
+                        <ArchivePartnershipButton partnership={partnership} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

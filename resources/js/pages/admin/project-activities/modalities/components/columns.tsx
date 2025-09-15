@@ -2,9 +2,130 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Modalities } from '@/types';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Radio, Tv, Globe, Building, Clock, Users } from 'lucide-react';
+import { MoreHorizontal, Radio, Tv, Globe, Building, Clock, Users, Trash } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import InputError from "@/components/input-error";
+import { Link, router } from '@inertiajs/react';
+import { route } from "ziggy-js";
+import { useState } from "react";
+
+// Archive Modality Component with Password Confirmation
+const ArchiveModalityButton = ({ modality }: { modality: Modalities }) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleArchive = () => {
+        if (!password.trim()) {
+            setErrorMessage('Please enter your password to confirm.');
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage('');
+
+        router.patch(`/admin/modalities/${modality.id}/archive`, {
+            password: password
+        }, {
+            onSuccess: () => {
+                setIsDialogOpen(false);
+                setPassword('');
+                setErrorMessage('');
+                setIsLoading(false);
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                if (errors.password) {
+                    setErrorMessage(errors.password);
+                } else if (errors.message) {
+                    setErrorMessage(errors.message);
+                } else {
+                    setErrorMessage('Archive failed. Please try again.');
+                }
+            }
+        });
+    };
+
+    const resetDialog = () => {
+        setIsDialogOpen(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
+    return (
+        <>
+            <DropdownMenuItem
+                variant="destructive"
+                className="flex items-center gap-2"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Small delay to let dropdown close first
+                    setTimeout(() => setIsDialogOpen(true), 100);
+                }}
+            >
+                <Trash className="h-4 w-4" />
+                Delete modality
+            </DropdownMenuItem>
+
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if (!open) {
+                    resetDialog();
+                }
+            }}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            You are about to delete the modality for "{modality.project?.name || 'Unknown Project'}". This action requires password confirmation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-1 items-center gap-4">
+                            <label htmlFor="password" className="text-sm font-medium">
+                                Password
+                            </label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="col-span-3"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleArchive();
+                                    }
+                                }}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <InputError message={errorMessage} className="col-span-4" />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={resetDialog}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleArchive}
+                            disabled={isLoading || !password.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+};
 
 export const columns: ColumnDef<Modalities>[] = [
     {
@@ -193,9 +314,7 @@ export const columns: ColumnDef<Modalities>[] = [
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive">
-                            Delete modality
-                        </DropdownMenuItem>
+                        <ArchiveModalityButton modality={modality} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

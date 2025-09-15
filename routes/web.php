@@ -58,6 +58,8 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('assessments');
             Route::get('{impactAssessment}/details', [ImpactAssessmentController::class, 'assessmentDetails'])
                 ->name('assessment');
+            Route::patch('{impactAssessment}/archive', [ImpactAssessmentController::class, 'archive'])
+                ->name('assessment.archive');
         });
 
         // Modalities Routes
@@ -73,6 +75,8 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('modalities');
             Route::get('{modality}/details', [AdminModalitiesController::class, 'modalityDetails'])
                 ->name('modality');
+            Route::patch('{modality}/archive', [AdminModalitiesController::class, 'archive'])
+                ->name('modality.archive');
         });
 
         // Awards Routes
@@ -88,6 +92,8 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('awards');
             Route::get('awards/{award}', [AwardController::class, 'awardDetails'])
                 ->name('award');
+            Route::patch('awards/{award}/archive', [AwardController::class, 'archive'])
+                ->name('award.archive');
         });
 
         // International Partner Routes
@@ -103,6 +109,8 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('partnerships');
             Route::get('{partnership}/details', [InternationalPartnerController::class, 'partnershipDetails'])
                 ->name('partnership');
+            Route::patch('{partnership}/archive', [InternationalPartnerController::class, 'archive'])
+                ->name('partnership.archive');
         });
 
         // Resolution Routes

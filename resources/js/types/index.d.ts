@@ -141,7 +141,7 @@ export interface Award {
 export interface ImpactAssessment {
     id: number;
     user: User;
-    project?: Project;
+    project: Project;
 
     project_id: number;
     beneficiary: string;
