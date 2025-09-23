@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class ResolutionController extends Controller
@@ -16,6 +18,7 @@ class ResolutionController extends Controller
     public function index()
     {
         $resolutions = Resolution::with('user')
+            ->where('is_archived', false)
             ->latest()
             ->get();
 
@@ -99,10 +102,33 @@ class ResolutionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Archive the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function archive(Request $request, Resolution $resolution)
     {
-        //
+        $request->validate([
+            'password' => 'required|string'
+        ]);
+
+        // Check if the provided password matches the current user's password
+        if (!Hash::check($request->password, Auth::user()->password)) {
+            return redirect()->back()
+                ->withErrors(['password' => 'The provided password is incorrect.'])
+                ->withInput();
+        }
+
+        $oldValues = ['is_archived' => $resolution->is_archived];
+        $resolution->update(['is_archived' => true]);
+
+        // Log the archive action
+        AuditLog::log(
+            action: 'archive',
+            auditable: $resolution,
+            oldValues: $oldValues,
+            newValues: ['is_archived' => true],
+            description: Auth::user()->name . " (Admin) archived Resolution #{$resolution->id}: {$resolution->resolution_number}"
+        );
+
+        return redirect()->route('admin.resolutions.index')->with('success', 'Resolution archived successfully.');
     }
 }

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image } from 'lucide-react';
+import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
 
@@ -73,8 +73,6 @@ export default function TechnologyTransfer() {
                 setErrorMessage('');
                 setIsLoading(false);
                 toast.success('Project archived successfully.');
-                // Redirect back to projects list
-                router.visit(`/admin/technology-transfer/${project.campus_college?.campus?.id}/${project.campus_college?.college?.id}/projects`);
             },
             onError: (errors) => {
                 setIsLoading(false);
@@ -106,10 +104,17 @@ export default function TechnologyTransfer() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Project Details</h1>
-                    <div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => router.visit(`/admin/technology-transfer/projects/${project.id}/edit`)}
+                        >
+                            <Edit3 className="h-4 w-4 mr-2" />
+                            Edit Project
+                        </Button>
                         <Button
                             variant="destructive"
-                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            className="justify-start bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
                             Delete Project
@@ -179,48 +184,6 @@ export default function TechnologyTransfer() {
                                     {!project.tags && (
                                         <div className="mt-1 text-sm text-muted-foreground">No tags specified</div>
                                     )}
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Timeline and Budget */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <CalendarDays className="h-5 w-5" />
-                                    Timeline & Budget
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-sm font-light">Start Date</Label>
-                                        <Input
-                                            value={project.start_date ? new Date(project.start_date).toLocaleDateString() : 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">End Date</Label>
-                                        <Input
-                                            value={project.end_date ? new Date(project.end_date).toLocaleDateString() : 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Budget</Label>
-                                        <Input
-                                            value={project.budget ? `₱${Number(project.budget).toLocaleString()}` : 'Not specified'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Funding Source</Label>
-                                        <Input value={project.funding_source || 'Not specified'} readOnly className="mt-1" />
-                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -321,41 +284,6 @@ export default function TechnologyTransfer() {
                             </CardContent>
                         </Card>
 
-                        {/* Attachments */}
-                        {(project.attachment_path || project.attachment_link) && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Download className="h-5 w-5" />
-                                        Attachments
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {project.attachment_path ? (
-                                        <Dialog>
-                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                <Image className="h-4 w-4" />
-                                                <p className="text-sm">Project Attachment</p>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Project Attachment</DialogTitle>
-                                                    <DialogDescription>
-                                                        <img src={asset(project.attachment_path)} alt="Project Attachment" className="w-full h-auto" />
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                            </DialogContent>
-                                        </Dialog>
-                                    ) : (
-                                        <div className="text-sm gap-2 flex items-center">
-                                            <Image className="h-4 w-4" />
-                                            No Attachment
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        )}
-
                         {/* Remarks */}
                         {project.remarks && (
                             <Card>
@@ -415,6 +343,48 @@ export default function TechnologyTransfer() {
                             </CardContent>
                         </Card>
 
+                        {/* Timeline and Budget */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <CalendarDays className="h-5 w-5" />
+                                    Timeline & Budget
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="text-sm font-light">Start Date</Label>
+                                        <Input
+                                            value={project.start_date ? new Date(project.start_date).toLocaleDateString() : 'Not set'}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-light">End Date</Label>
+                                        <Input
+                                            value={project.end_date ? new Date(project.end_date).toLocaleDateString() : 'Not set'}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-light">Budget</Label>
+                                        <Input
+                                            value={project.budget ? `₱${Number(project.budget).toLocaleString()}` : 'Not specified'}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-light">Funding Source</Label>
+                                        <Input value={project.funding_source || 'Not specified'} readOnly className="mt-1" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         {/* Intellectual Property */}
                         <Card>
                             <CardHeader>
@@ -456,6 +426,60 @@ export default function TechnologyTransfer() {
                             </CardContent>
                         </Card>
 
+                        {/* Attachments */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Download className="h-5 w-5" />
+                                    Attachments
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center p-3 border rounded-lg">
+                                    {project.attachment_path ? (
+                                        <Dialog>
+                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
+                                                <Image className="h-4 w-4" />
+                                                <p className="text-sm">Project Attachment</p>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Project Attachment</DialogTitle>
+                                                    <DialogDescription>
+                                                        <img src={asset(project.attachment_path)} alt="Project Attachment" className="w-full h-auto" />
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        <div className="text-sm gap-2 flex items-center">
+                                            <Image className="h-4 w-4" />
+                                            No Attachment
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <ExternalLink className="h-4 w-4" />
+                                            {project.attachment_link ? (
+                                                <a
+                                                    href={project.attachment_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-primary hover:underline text-sm flex items-center gap-1 truncate"
+                                                >
+                                                    {project.attachment_link}
+                                                </a>
+                                            ) : (
+                                                <span className="text-sm">No Attachment Link</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         {/* Record Details */}
                         <Card>
                             <CardHeader>
@@ -468,15 +492,11 @@ export default function TechnologyTransfer() {
                                         <span>{project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Not set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Created By</span>
-                                        <span>{project.user.name}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Date Last Updated</span>
                                         <span>{project.updated_at ? new Date(project.updated_at).toLocaleDateString() : 'Not set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Last Updated By</span>
+                                        <span className="text-muted-foreground">Created By</span>
                                         <span>{project.user.name}</span>
                                     </div>
                                 </div>
@@ -518,7 +538,7 @@ export default function TechnologyTransfer() {
                         <Button variant="outline" onClick={resetArchiveDialog} disabled={isLoading}>
                             Cancel
                         </Button>
-                        <Button variant="destructive" onClick={handleArchive} disabled={isLoading}>
+                        <Button variant="destructive" onClick={handleArchive} disabled={isLoading} className="bg-red-700 hover:bg-red-800">
                             {isLoading ? 'Deleting...' : 'Delete Project'}
                         </Button>
                     </DialogFooter>

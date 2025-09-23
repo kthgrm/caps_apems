@@ -47,7 +47,7 @@ export default function CreateResolution() {
                 </div>
 
                 {/* Form */}
-                <div className="max-w-4xl">
+                <div className="max-w-3xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Card>
                             <CardHeader>
@@ -66,7 +66,7 @@ export default function CreateResolution() {
                                         id="resolution_number"
                                         value={data.resolution_number}
                                         onChange={(e) => setData('resolution_number', e.target.value)}
-                                        placeholder="e.g., RES-2025-001"
+                                        placeholder="Enter resolution number"
                                         className={errors.resolution_number ? 'border-red-500' : ''}
                                     />
                                     {errors.resolution_number && (
@@ -78,7 +78,6 @@ export default function CreateResolution() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="year_of_effectivity" className="flex items-center gap-2">
-                                            <Calendar className="h-4 w-4" />
                                             Year of Effectivity <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
@@ -95,7 +94,6 @@ export default function CreateResolution() {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="expiration" className="flex items-center gap-2">
-                                            <Calendar className="h-4 w-4" />
                                             Expiration Date <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
@@ -114,14 +112,13 @@ export default function CreateResolution() {
                                 {/* Partner Agency */}
                                 <div className="space-y-2">
                                     <Label htmlFor="partner_agency_organization" className="flex items-center gap-2">
-                                        <Building className="h-4 w-4" />
                                         Partner Agency/Organization <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="partner_agency_organization"
                                         value={data.partner_agency_organization}
                                         onChange={(e) => setData('partner_agency_organization', e.target.value)}
-                                        placeholder="e.g., Department of Science and Technology"
+                                        placeholder="Enter partner agency or organization"
                                         className={errors.partner_agency_organization ? 'border-red-500' : ''}
                                     />
                                     {errors.partner_agency_organization && (
@@ -148,7 +145,7 @@ export default function CreateResolution() {
                                         id="contact_person"
                                         value={data.contact_person}
                                         onChange={(e) => setData('contact_person', e.target.value)}
-                                        placeholder="e.g., Maria Santos"
+                                        placeholder="Enter full name"
                                         className={errors.contact_person ? 'border-red-500' : ''}
                                     />
                                     {errors.contact_person && (
@@ -159,14 +156,13 @@ export default function CreateResolution() {
                                 {/* Contact Number/Email */}
                                 <div className="space-y-2">
                                     <Label htmlFor="contact_number_email" className="flex items-center gap-2">
-                                        <Mail className="h-4 w-4" />
                                         Contact Number/Email <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="contact_number_email"
                                         value={data.contact_number_email}
                                         onChange={(e) => setData('contact_number_email', e.target.value)}
-                                        placeholder="e.g., maria.santos@university.edu.ph or +63912-345-6789"
+                                        placeholder="Enter email or phone number"
                                         className={errors.contact_number_email ? 'border-red-500' : ''}
                                     />
                                     {errors.contact_number_email && (

@@ -10,6 +10,7 @@ use App\Models\College;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class AwardController extends Controller
@@ -60,10 +61,68 @@ class AwardController extends Controller
 
     public function awardDetails(Award $award)
     {
+        if ($award->is_archived) {
+            abort(404);
+        }
+
         $award->load(['campusCollege.campus', 'campusCollege.college', 'user']);
         return Inertia::render('admin/awards/award', [
             'award' => $award,
         ]);
+    }
+
+    public function awardEdit(Award $award)
+    {
+        if ($award->is_archived) {
+            abort(404);
+        }
+
+        $award->load(['campusCollege.campus', 'campusCollege.college', 'user']);
+        return Inertia::render('admin/awards/edit', [
+            'award' => $award,
+        ]);
+    }
+
+    public function awardUpdate(Request $request, Award $award)
+    {
+        $validated = $request->validate([
+            'award_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'level' => 'required|in:local,regional,national,international',
+            'date_received' => 'required|date',
+            'event_details' => 'required|string',
+            'location' => 'required|string|max:255',
+            'awarding_body' => 'required|string|max:255',
+            'people_involved' => 'required|string',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
+            'attachment_link' => 'nullable|url',
+        ]);
+
+        // Store old values for audit log
+        $oldValues = $award->toArray();
+
+        // Handle file upload
+        if ($request->hasFile('attachment')) {
+            // Delete old file if it exists
+            if ($award->attachment_path) {
+                Storage::disk('public')->delete($award->attachment_path);
+            }
+            $validated['attachment_path'] = $request->file('attachment')->store('awards', 'public');
+        }
+
+        $award->update($validated);
+
+        // Log the update action
+        AuditLog::log(
+            action: 'update',
+            auditable: $award,
+            oldValues: $oldValues,
+            newValues: $validated,
+            description: Auth::user()->name . " (Admin) updated Award #{$award->id}: {$award->award_name}"
+        );
+
+        return redirect()->route('admin.awards-recognition.award', $award)
+            ->with('success', 'Award updated successfully.');
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Campus;
 use App\Models\College;
 use App\Models\Modalities;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -67,6 +68,69 @@ class ModalitiesController extends Controller
         return Inertia::render('admin/project-activities/modalities/modality', [
             'modality' => $modality,
         ]);
+    }
+
+    public function modalityEdit(Modalities $modality)
+    {
+        if ($modality->is_archived) {
+            abort(404);
+        }
+
+        $modality->load(['project', 'project.campusCollege.campus', 'project.campusCollege.college', 'user']);
+
+        $projects = collect();
+        if ($modality->project && $modality->project->campusCollege) {
+            $campusCollegeId = $modality->project->campusCollege->id;
+            $projects = Project::whereHas('campusCollege', function ($query) use ($campusCollegeId) {
+                $query->where('id', $campusCollegeId);
+            })->get()->map(function ($project) {
+                return [
+                    'value' => $project->id,
+                    'label' => $project->name,
+                ];
+            });
+        }
+
+        return Inertia::render('admin/project-activities/modalities/edit', [
+            'modality' => $modality,
+            'projects' => $projects,
+        ]);
+    }
+
+    public function modalityUpdate(Request $request, Modalities $modality)
+    {
+        if ($modality->is_archived) {
+            abort(404, 'Modality not found.');
+        }
+
+        $validated = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'modality' => 'required|string|max:255',
+            'tv_channel' => 'nullable|string|max:255',
+            'radio' => 'nullable|string|max:255',
+            'online_link' => 'nullable|url|max:255',
+            'time_air' => 'nullable|string|max:255',
+            'period' => 'nullable|string|max:255',
+            'partner_agency' => 'nullable|string|max:255',
+            'hosted_by' => 'nullable|string|max:255',
+        ]);
+
+        // Store old values for audit log
+        $oldValues = $modality->toArray();
+
+        $modality->update($validated);
+
+        // Log the update action
+        AuditLog::log(
+            action: 'update',
+            auditable: $modality,
+            oldValues: $oldValues,
+            newValues: $validated,
+            description: Auth::user()->name . " (Admin) updated Modality #{$modality->id} for project: {$modality->project?->name}"
+        );
+
+        return redirect()->route('admin.modalities.modality', $modality)
+            ->with('success', 'Modality updated successfully.');
     }
 
     /**

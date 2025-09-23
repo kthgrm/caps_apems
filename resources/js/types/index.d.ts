@@ -201,10 +201,10 @@ export interface Modalities {
     tv_channel?: string | null;
     radio?: string | null;
     online_link?: string | null;
-    time_air?: string | null;
-    period?: string | null;
-    partner_agency?: string | null;
-    hosted_by?: string | null;
+    time_air: string;
+    period: string;
+    partner_agency: string;
+    hosted_by: string;
     is_archived: boolean;
 
     created_at: string;

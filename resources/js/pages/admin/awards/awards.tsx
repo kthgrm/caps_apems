@@ -23,19 +23,19 @@ export default function AwardsIndex() {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Awards and Recognitions',
-            href: '/admin/awards',
+            href: '/admin/awards-recognition',
         },
         {
             title: 'Campus',
-            href: '/admin/awards',
+            href: '/admin/awards-recognition',
         },
         {
             title: 'College',
-            href: `/admin/awards/${campus.id}`,
+            href: `/admin/awards-recognition/${campus.id}`,
         },
         {
             title: 'Awards',
-            href: `/admin/awards/${campus.id}/${college.id}`,
+            href: `/admin/awards-recognition/${campus.id}/${college.id}/awards`,
         },
     ]
 

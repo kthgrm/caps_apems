@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { AwardIcon, Trophy, Users, Building, Calendar, Clock, FileText, Download, User, MapPin, Image } from 'lucide-react';
+import { AwardIcon, Trophy, Users, Building, Calendar, Clock, FileText, Download, User, MapPin, Image, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
 
@@ -37,7 +37,7 @@ export default function AwardsDetails() {
         },
         {
             title: 'Awards',
-            href: `/admin/awards-recognition/${award.campus_college.campus.id}/${award.campus_college.college.id}`,
+            href: `/admin/awards-recognition/${award.campus_college.campus.id}/${award.campus_college.college.id}/awards`,
         },
         {
             title: 'Details',
@@ -124,10 +124,16 @@ export default function AwardsDetails() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Award Details</h1>
-                    <div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => router.visit(`/admin/awards-recognition/awards/${award.id}/edit`)}
+                        >
+                            Edit Award
+                        </Button>
                         <Button
                             variant="destructive"
-                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            className="bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
                             Delete Award
@@ -214,43 +220,6 @@ export default function AwardsDetails() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Attachment */}
-                        {award.attachment_path && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Download className="h-5 w-5" />
-                                        Attachment
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                                        {award.attachment_path ? (
-                                            <Dialog>
-                                                <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                    <Image className="h-4 w-4" />
-                                                    <p className="text-sm">Partnership Attachment</p>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Partnership Attachment</DialogTitle>
-                                                        <DialogDescription>
-                                                            <img src={asset(award.attachment_path)} alt="Partnership Attachment" className="w-full h-auto" />
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                </DialogContent>
-                                            </Dialog>
-                                        ) : (
-                                            <div className="text-sm gap-2 flex items-center">
-                                                <Image className="h-4 w-4" />
-                                                No Attachment
-                                            </div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-
                         {/* Department */}
                         <Card>
                             <CardHeader>
@@ -297,10 +266,64 @@ export default function AwardsDetails() {
                             </CardContent>
                         </Card>
 
-                        {/* Administrative Information */}
+                        {/* Attachment */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Administrative Information</CardTitle>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Download className="h-5 w-5" />
+                                    Attachments
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center p-3 border rounded-lg">
+                                    {award.attachment_path ? (
+                                        <Dialog>
+                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
+                                                <Image className="h-4 w-4" />
+                                                <p className="text-sm">award Attachment</p>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Award Attachment</DialogTitle>
+                                                    <DialogDescription>
+                                                        <img src={asset(award.attachment_path)} alt="Award Attachment" className="w-full h-auto" />
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        <div className="text-sm gap-2 flex items-center">
+                                            <Image className="h-4 w-4" />
+                                            No Attachment
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <ExternalLink className="h-4 w-4" />
+                                            {award.attachment_link ? (
+                                                <a
+                                                    href={award.attachment_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-primary hover:underline text-sm flex items-center gap-1 truncate"
+                                                >
+                                                    {award.attachment_link}
+                                                </a>
+                                            ) : (
+                                                <span className="text-sm">No Attachment Link</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Record Details */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Record Details</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -309,15 +332,11 @@ export default function AwardsDetails() {
                                         <span>{new Date(award.created_at).toLocaleDateString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Created By</span>
-                                        <span>{award.user.name}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Date Last Updated</span>
                                         <span>{new Date(award.updated_at).toLocaleDateString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Last Updated By</span>
+                                        <span className="text-muted-foreground">Created By</span>
                                         <span>{award.user.name}</span>
                                     </div>
                                 </div>

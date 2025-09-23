@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Campus extends Model
 {
+    protected $fillable = [
+        'name',
+        'logo',
+    ];
+
     public function colleges()
     {
         return $this->belongsToMany(College::class);

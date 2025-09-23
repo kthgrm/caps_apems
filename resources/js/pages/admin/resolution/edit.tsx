@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { type BreadcrumbItem, Resolution } from '@/types';
+import InputError from '@/components/input-error';
 
 interface ResolutionEditProps {
     resolution: Resolution;
@@ -21,7 +22,7 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
         { title: 'Edit', href: `/admin/resolutions/${resolution.id}/edit` },
     ];
 
-    const { data, setData, patch, processing, errors, isDirty } = useForm({
+    const { data, setData, put, processing, errors, isDirty } = useForm({
         resolution_number: resolution.resolution_number || '',
         year_of_effectivity: resolution.year_of_effectivity ? new Date(resolution.year_of_effectivity).toISOString().split('T')[0] : '',
         expiration: resolution.expiration ? new Date(resolution.expiration).toISOString().split('T')[0] : '',
@@ -32,7 +33,7 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        patch(`/admin/resolutions/${resolution.id}`, {
+        put(`/admin/resolutions/${resolution.id}`, {
             onSuccess: () => {
                 // Success is handled by the redirect in the controller
             },
@@ -45,35 +46,24 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div>
-                            <h1 className="text-2xl font-bold flex items-center gap-3">
-                                <FileText className="h-6 w-6 text-blue-600" />
-                                Edit Resolution
-                            </h1>
-                            <p className="text-gray-600">
-                                Update resolution information and details
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            asChild
-                        >
-                            <Link href={`/admin/resolutions/${resolution.id}`}>
-                                <X className="h-4 w-4 mr-2" />
-                                Cancel
-                            </Link>
-                        </Button>
+                    <h1 className="text-2xl font-bold flex items-center gap-3">
+                        Edit Resolution
+                    </h1>
+                    <div className="flex gap-2">
                         <Button
                             type="submit"
                             form="resolution-edit-form"
-                            disabled={processing || !isDirty}
+
+                            disabled={processing}
                         >
-                            <Save className="h-4 w-4 mr-2" />
-                            {processing ? 'Saving...' : 'Save Changes'}
+                            {processing ? 'Updating...' : 'Update Resolution'}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => window.history.back()}
+                        >
+                            Cancel
                         </Button>
                     </div>
                 </div>
@@ -86,11 +76,21 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-5 w-5 text-blue-600" />
+                                        <FileText className="h-5 w-5" />
                                         Resolution Information
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="id">Id</Label>
+                                        <Input
+                                            id="id"
+                                            type="text"
+                                            value={resolution.id}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
                                     <div>
                                         <Label htmlFor="resolution_number">Resolution Number</Label>
                                         <Input
@@ -99,48 +99,35 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                                             value={data.resolution_number}
                                             onChange={(e) => setData('resolution_number', e.target.value)}
                                             placeholder="Enter resolution number"
-                                            className={errors.resolution_number ? 'border-red-500' : ''}
+                                            className="mt-1"
                                         />
-                                        {errors.resolution_number && (
-                                            <p className="text-sm text-red-500 mt-1">{errors.resolution_number}</p>
-                                        )}
+                                        <InputError message={errors.resolution_number} />
                                     </div>
-
-                                    <Separator />
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <Label htmlFor="year_of_effectivity" className="flex items-center gap-2">
-                                                <Calendar className="h-4 w-4" />
-                                                Year of Effectivity
-                                            </Label>
-                                            <Input
-                                                id="year_of_effectivity"
-                                                type="date"
-                                                value={data.year_of_effectivity}
-                                                onChange={(e) => setData('year_of_effectivity', e.target.value)}
-                                                className={errors.year_of_effectivity ? 'border-red-500' : ''}
-                                            />
-                                            {errors.year_of_effectivity && (
-                                                <p className="text-sm text-red-500 mt-1">{errors.year_of_effectivity}</p>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="expiration" className="flex items-center gap-2">
-                                                <Calendar className="h-4 w-4" />
-                                                Expiration Date
-                                            </Label>
-                                            <Input
-                                                id="expiration"
-                                                type="date"
-                                                value={data.expiration}
-                                                onChange={(e) => setData('expiration', e.target.value)}
-                                                className={errors.expiration ? 'border-red-500' : ''}
-                                            />
-                                            {errors.expiration && (
-                                                <p className="text-sm text-red-500 mt-1">{errors.expiration}</p>
-                                            )}
-                                        </div>
+                                    <div>
+                                        <Label htmlFor="year_of_effectivity" className="flex items-center gap-2">
+                                            Year of Effectivity
+                                        </Label>
+                                        <Input
+                                            id="year_of_effectivity"
+                                            type="date"
+                                            value={data.year_of_effectivity}
+                                            onChange={(e) => setData('year_of_effectivity', e.target.value)}
+                                            className="mt-1"
+                                        />
+                                        <InputError message={errors.year_of_effectivity} />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="expiration" className="flex items-center gap-2">
+                                            Expiration Date
+                                        </Label>
+                                        <Input
+                                            id="expiration"
+                                            type="date"
+                                            value={data.expiration}
+                                            onChange={(e) => setData('expiration', e.target.value)}
+                                            className="mt-1"
+                                        />
+                                        <InputError message={errors.expiration} />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -149,7 +136,7 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Building className="h-5 w-5 text-green-600" />
+                                        <Building className="h-5 w-5" />
                                         Partner Information
                                     </CardTitle>
                                 </CardHeader>
@@ -162,14 +149,10 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                                             value={data.partner_agency_organization}
                                             onChange={(e) => setData('partner_agency_organization', e.target.value)}
                                             placeholder="Enter partner agency or organization"
-                                            className={errors.partner_agency_organization ? 'border-red-500' : ''}
+                                            className="mt-1"
                                         />
-                                        {errors.partner_agency_organization && (
-                                            <p className="text-sm text-red-500 mt-1">{errors.partner_agency_organization}</p>
-                                        )}
+                                        <InputError message={errors.partner_agency_organization} />
                                     </div>
-
-                                    <Separator />
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -183,11 +166,9 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                                                 value={data.contact_person}
                                                 onChange={(e) => setData('contact_person', e.target.value)}
                                                 placeholder="Enter contact person name"
-                                                className={errors.contact_person ? 'border-red-500' : ''}
+                                                className="mt-1"
                                             />
-                                            {errors.contact_person && (
-                                                <p className="text-sm text-red-500 mt-1">{errors.contact_person}</p>
-                                            )}
+                                            <InputError message={errors.contact_person} />
                                         </div>
                                         <div>
                                             <Label htmlFor="contact_number_email" className="flex items-center gap-2">
@@ -200,11 +181,9 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
                                                 value={data.contact_number_email}
                                                 onChange={(e) => setData('contact_number_email', e.target.value)}
                                                 placeholder="Enter phone number or email"
-                                                className={errors.contact_number_email ? 'border-red-500' : ''}
+                                                className="mt-1"
                                             />
-                                            {errors.contact_number_email && (
-                                                <p className="text-sm text-red-500 mt-1">{errors.contact_number_email}</p>
-                                            )}
+                                            <InputError message={errors.contact_number_email} />
                                         </div>
                                     </div>
                                 </CardContent>
@@ -213,26 +192,25 @@ export default function ResolutionEdit({ resolution }: ResolutionEditProps) {
 
                         {/* Sidebar */}
                         <div className="space-y-6">
-                            {/* Submission Details */}
+                            {/* Record Details */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-sm">Submission Details</CardTitle>
+                                    <CardTitle>Record Details</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div>
-                                        <Label className="text-sm font-medium text-gray-500">Submitted By</Label>
-                                        <p className="font-medium flex items-center gap-2">
-                                            <User className="h-4 w-4 text-purple-600" />
-                                            {resolution.user.name}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium text-gray-500">Created At</Label>
-                                        <p className="text-sm">{new Date(resolution.created_at).toLocaleString()}</p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium text-gray-500">Last Updated</Label>
-                                        <p className="text-sm">{new Date(resolution.updated_at).toLocaleString()}</p>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-muted-foreground">Date Created</span>
+                                            <span>{new Date(resolution.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-muted-foreground">Date Last Updated</span>
+                                            <span>{new Date(resolution.updated_at).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-muted-foreground">Created By</span>
+                                            <span>{resolution.user.name}</span>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>

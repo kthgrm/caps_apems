@@ -1,7 +1,7 @@
 import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app-layout';
 import { Modalities, type BreadcrumbItem } from '@/types';
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, usePage, router, Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Radio, Tv, Globe, Building, Clock, Users, FileText, Paperclip, Link } from 'lucide-react';
+import { Radio, Tv, Globe, Building, Clock, Users, FileText, Paperclip, Link as LinkIcon, Edit } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
@@ -123,10 +123,16 @@ export default function ModalityDetails() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Modality Details</h1>
-                    <div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" asChild>
+                            <Link href={`/admin/modalities/${modality.id}/edit`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit Modality
+                            </Link>
+                        </Button>
                         <Button
                             variant="destructive"
-                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            className="justify-start bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
                             Delete Modality
@@ -157,6 +163,14 @@ export default function ModalityDetails() {
                                             {getModalityIcon(modality.modality)}
                                             <span className="font-medium">{modality.modality}</span>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium">Air Time</Label>
+                                        <Input value={modality.time_air} readOnly className="mt-1" />
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium">Period</Label>
+                                        <Input value={modality.period} readOnly className="mt-1" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -220,32 +234,6 @@ export default function ModalityDetails() {
                             </CardContent>
                         </Card>
 
-                        {/* Schedule Information */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5" />
-                                    Schedule Information
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {modality.time_air && (
-                                        <div>
-                                            <Label className="text-sm font-medium">Air Time</Label>
-                                            <Input value={modality.time_air} readOnly className="mt-1" />
-                                        </div>
-                                    )}
-                                    {modality.period && (
-                                        <div>
-                                            <Label className="text-sm font-medium">Period</Label>
-                                            <Input value={modality.period} readOnly className="mt-1" />
-                                        </div>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-
                         {/* Partnership Information */}
                         {(modality.partner_agency || modality.hosted_by) && (
                             <Card>
@@ -270,35 +258,6 @@ export default function ModalityDetails() {
                                             </div>
                                         )}
                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* Related Project Information */}
-                        {modality.project && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-5 w-5" />
-                                        Related Project
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full flex items-center justify-start gap-2"
-                                                onClick={() => window.location.href = `/admin/technology-transfer/projects/${modality.project.id}`}
-                                            >
-                                                <Link className="h-5 w-5" />
-                                                {modality.project.name}
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Go to project details</p>
-                                        </TooltipContent>
-                                    </Tooltip>
                                 </CardContent>
                             </Card>
                         )}
@@ -353,6 +312,44 @@ export default function ModalityDetails() {
                                 </CardContent>
                             </Card>
                         )}
+
+                        {/* Related Project Information */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <FileText className="h-5 w-5" />
+                                    Related Project
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`w-full flex items-center justify-start gap-2 ${modality.project.is_archived
+                                                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-500'
+                                                : ''
+                                                }`}
+                                            onClick={modality.project.is_archived
+                                                ? undefined
+                                                : () => window.location.href = `/admin/technology-transfer/projects/${modality.project.id}`
+                                            }
+                                        >
+                                            <Paperclip className="h-5 w-5" />
+                                            {modality.project.name}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            {modality.project.is_archived
+                                                ? 'This project has been deleted'
+                                                : 'Go to project details'
+                                            }
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </CardContent>
+                        </Card>
 
                         {/* Record Details */}
                         <Card>

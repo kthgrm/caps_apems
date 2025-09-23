@@ -116,7 +116,7 @@ const ArchiveModalityButton = ({ modality }: { modality: Modalities }) => {
                         <Button
                             onClick={handleArchive}
                             disabled={isLoading || !password.trim()}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-red-700 hover:bg-red-800"
                         >
                             {isLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>

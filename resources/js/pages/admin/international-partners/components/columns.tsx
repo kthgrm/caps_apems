@@ -28,7 +28,7 @@ const ArchivePartnershipButton = ({ partnership }: { partnership: InternationalP
         setIsLoading(true);
         setErrorMessage('');
 
-        router.patch(`/admin/international-partners/${partnership.id}/archive`, {
+        router.patch(`/admin/international-partners/partnerships/${partnership.id}/archive`, {
             password: password
         }, {
             onSuccess: () => {
@@ -117,7 +117,7 @@ const ArchivePartnershipButton = ({ partnership }: { partnership: InternationalP
                         <Button
                             onClick={handleArchive}
                             disabled={isLoading || !password.trim()}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-red-700 hover:bg-red-800"
                         >
                             {isLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>
@@ -251,8 +251,13 @@ export const columns: ColumnDef<InternationalPartner>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                            <Link href={`/admin/international-partners/${partnership.id}/details`} className="font-light">
+                            <Link href={`/admin/international-partners/partnerships/${partnership.id}`} className="font-light">
                                 View details
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/international-partners/partnerships/${partnership.id}/edit`} className="font-light">
+                                Edit partnership
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

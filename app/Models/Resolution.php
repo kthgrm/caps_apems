@@ -18,11 +18,13 @@ class Resolution extends Model
         'contact_person',
         'contact_number_email',
         'partner_agency_organization',
+        'is_archived',
     ];
 
     protected $casts = [
         'year_of_effectivity' => 'date',
         'expiration' => 'date',
+        'is_archived' => 'boolean',
     ];
 
     /**

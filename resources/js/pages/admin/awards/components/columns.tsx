@@ -117,7 +117,7 @@ const ArchiveAwardButton = ({ award }: { award: Award }) => {
                         <Button
                             onClick={handleArchive}
                             disabled={isLoading || !password.trim()}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-red-700 hover:bg-red-800"
                         >
                             {isLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>
@@ -228,6 +228,11 @@ export const columns: ColumnDef<Award>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/admin/awards-recognition/awards/${award.id}`} className="font-light">
                                 View details
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/awards-recognition/awards/${award.id}/edit`} className="font-light">
+                                Edit award
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

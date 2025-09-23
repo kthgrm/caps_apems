@@ -10,6 +10,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class TechnologyTransferController extends Controller
@@ -60,10 +61,87 @@ class TechnologyTransferController extends Controller
 
     public function projectDetails(Project $project)
     {
+        if ($project->is_archived) {
+            abort(404);
+        }
+
         $project->load(['campusCollege.campus', 'campusCollege.college', 'user']);
         return Inertia::render('admin/technology-transfer/projects/project/index', [
             'project' => $project,
         ]);
+    }
+
+    public function projectEdit(Project $project)
+    {
+        if ($project->is_archived) {
+            abort(404);
+        }
+
+        $project->load(['campusCollege.campus', 'campusCollege.college', 'user']);
+        return Inertia::render('admin/technology-transfer/projects/project/edit', [
+            'project' => $project,
+        ]);
+    }
+
+    /**
+     * Update a project.
+     */
+    public function projectUpdate(Request $request, Project $project)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|in:private,government',
+            'purpose' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'budget' => 'required|numeric|min:0',
+            'funding_source' => 'required|string|max:255',
+            'tags' => 'required|string|max:255',
+            'leader' => 'required|string|max:255',
+            'deliverables' => 'required|string|max:255',
+            'agency_partner' => 'required|string|max:255',
+            'contact_person' => 'required|string|max:255',
+            'contact_email' => 'required|email|max:255',
+            'contact_phone' => 'required|string|max:255',
+            'contact_address' => 'nullable|string',
+            'copyright' => 'required|in:yes,no,pending',
+            'ip_details' => 'nullable|string',
+            'is_assessment_based' => 'boolean',
+            'monitoring_evaluation_plan' => 'nullable|string',
+            'sustainability_plan' => 'nullable|string',
+            'reporting_frequency' => 'nullable|integer|min:0|max:12',
+            'attachment' => 'nullable|file|max:10240', // 10MB
+            'attachment_link' => 'nullable|url',
+            'remarks' => 'nullable|string',
+        ]);
+
+        // Store old values for audit log
+        $oldValues = $project->toArray();
+
+        // Handle file upload
+        if ($request->hasFile('attachment')) {
+            // Delete old attachment if it exists
+            if ($project->attachment_path) {
+                Storage::disk('public')->delete($project->attachment_path);
+            }
+            $data['attachment_path'] = $request->file('attachment')->store('project-attachment', 'public');
+        }
+
+        // Update project
+        $project->update($data);
+
+        // Log the update action
+        AuditLog::log(
+            action: 'update',
+            auditable: $project,
+            oldValues: $oldValues,
+            newValues: $project->fresh()->toArray(),
+            description: Auth::user()->name . " (Admin) updated Project #{$project->id}: {$project->name}"
+        );
+
+        return redirect()->route('admin.technology-transfer.project', $project)
+            ->with('message', 'Project updated successfully.');
     }
 
     /**
@@ -95,6 +173,6 @@ class TechnologyTransferController extends Controller
             description: Auth::user()->name . " (Admin) archived Project #{$project->id}: {$project->name}"
         );
 
-        return redirect()->back()->with('success', 'Project archived successfully.');
+        return redirect()->route('admin.technology-transfer.projects')->with('success', 'Project archived successfully.');
     }
 }

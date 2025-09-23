@@ -150,28 +150,28 @@ export default function Dashboard({
                 </div>
 
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    <Card className='bg-gradient-to-r from-blue-100/50 to-blue-200/50'>
+                    <Card className='bg-linear-to-b from-indigo-600 to-sky-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Technology Transfer</CardTitle>
-                            <FolderOpen className="w-4 text-blue-500" />
+                            <FolderOpen className="w-4" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{overallStats.total_projects}</div>
                         </CardContent>
                     </Card>
-                    <Card className='bg-gradient-to-r from-yellow-100/50 to-yellow-200/50'>
+                    <Card className='bg-linear-to-b from-amber-500 to-yellow-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Awards and Recognition</CardTitle>
-                            <Trophy className="w-4 text-yellow-500" />
+                            <Trophy className="w-4" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{overallStats.total_awards}</div>
                         </CardContent>
                     </Card>
-                    <Card className='bg-gradient-to-r from-green-100/50 to-green-200/50'>
+                    <Card className='bg-linear-to-b from-emerald-700 to-green-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">International Partners</CardTitle>
-                            <Globe className="w-4 text-green-500" />
+                            <Globe className="w-4" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{overallStats.total_international_partners}</div>

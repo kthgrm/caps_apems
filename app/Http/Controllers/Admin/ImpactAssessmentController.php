@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Campus;
 use App\Models\College;
 use App\Models\ImpactAssessment;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class ImpactAssessmentController extends Controller
             'projects' => function ($query) {
                 $query->whereHas('impactAssessment', function ($assessmentQuery) {
                     $assessmentQuery->where('is_archived', false);
-                })->where('is_archived', false);
+                });
             }
         ])->get();
 
@@ -39,7 +40,7 @@ class ImpactAssessmentController extends Controller
                         $subQuery->where('campus_id', $campus->id);
                     })->whereHas('impactAssessment', function ($assessmentQuery) {
                         $assessmentQuery->where('is_archived', false);
-                    })->where('is_archived', false);
+                    });
                 }
             ])->get(),
         ]);
@@ -50,7 +51,7 @@ class ImpactAssessmentController extends Controller
         $assessments = ImpactAssessment::whereHas('project', function ($query) use ($college) {
             $query->whereHas('campusCollege', function ($query) use ($college) {
                 $query->where('college_id', $college->id);
-            })->where('is_archived', false);
+            });
         })->where('is_archived', false)->with(['project.campusCollege.campus', 'project.campusCollege.college', 'user'])->get();
 
         return Inertia::render('admin/project-activities/impact-assessment/impact-assessments', [
@@ -62,11 +63,77 @@ class ImpactAssessmentController extends Controller
 
     public function assessmentDetails(ImpactAssessment $impactAssessment)
     {
+        if ($impactAssessment->is_archived) {
+            abort(404);
+        }
+
         $impactAssessment->load(['project', 'project.campusCollege.campus', 'project.campusCollege.college', 'user']);
 
         return Inertia::render('admin/project-activities/impact-assessment/impact-assessment', [
             'assessment' => $impactAssessment,
         ]);
+    }
+
+    /**
+     * Show the form for editing the specified impact assessment.
+     */
+    public function assessmentEdit(ImpactAssessment $impactAssessment)
+    {
+        if ($impactAssessment->is_archived) {
+            abort(404);
+        }
+
+        $impactAssessment->load(['project', 'project.campusCollege.campus', 'project.campusCollege.college', 'user']);
+
+        // Get all projects from the same campus and college
+        $projects = collect();
+        if ($impactAssessment->project && $impactAssessment->project->campusCollege) {
+            $campusCollegeId = $impactAssessment->project->campusCollege->id;
+            $projects = Project::whereHas('campusCollege', function ($query) use ($campusCollegeId) {
+                $query->where('id', $campusCollegeId);
+            })->get()->map(function ($project) {
+                return [
+                    'value' => $project->id,
+                    'label' => $project->name,
+                ];
+            });
+        }
+
+        return Inertia::render('admin/project-activities/impact-assessment/edit', [
+            'assessment' => $impactAssessment,
+            'projects' => $projects,
+        ]);
+    }
+
+    /**
+     * Update the specified impact assessment.
+     */
+    public function assessmentUpdate(Request $request, ImpactAssessment $impactAssessment)
+    {
+        $data = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'beneficiary' => 'required|string|max:255',
+            'geographic_coverage' => 'required|string|max:255',
+            'num_direct_beneficiary' => 'required|integer|min:0',
+            'num_indirect_beneficiary' => 'required|integer|min:0',
+        ]);
+
+        $oldValues = $impactAssessment->only(['project_id', 'beneficiary', 'geographic_coverage', 'num_direct_beneficiary', 'num_indirect_beneficiary']);
+
+        $impactAssessment->fill($data);
+        $impactAssessment->save();
+
+        // Log the update action
+        AuditLog::log(
+            action: 'update',
+            auditable: $impactAssessment,
+            oldValues: $oldValues,
+            newValues: $data,
+            description: Auth::user()->name . " (Admin) updated Impact Assessment #{$impactAssessment->id} for project: {$impactAssessment->project?->name}"
+        );
+
+        return redirect()->route('admin.impact-assessment.assessment', $impactAssessment)
+            ->with('success', 'Impact assessment updated successfully.');
     }
 
     /**

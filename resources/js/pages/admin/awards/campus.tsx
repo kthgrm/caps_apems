@@ -4,17 +4,18 @@ import { Toaster } from "@/components/ui/sonner";
 import AppLayout from "@/layouts/app-layout";
 import { BreadcrumbItem, Campus as BaseCampus } from "@/types";
 import { Head, Link, usePage } from "@inertiajs/react";
+import { CirclePlus } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Awards and Recognitions',
-        href: '/admin/awards',
+        href: '/admin/awards-recognition',
     },
     {
         title: 'Campus',
-        href: '/admin/awards',
+        href: '/admin/awards-recognition',
     },
 ];
 
@@ -74,6 +75,14 @@ export default function Awards() {
                             </Link>
                         </Card>
                     ))}
+                    <Card className="hover:shadow-lg transition-shadow duration-200">
+                        <Link href={`/admin/campus/create`} className="flex flex-col items-center gap-3 h-full">
+                            <CardContent className="flex flex-col items-center justify-center h-full gap-2">
+                                <CirclePlus size={64} className="text-slate-700" />
+                                <span className='text-lg font-medium'>Add Campus</span>
+                            </CardContent>
+                        </Link>
+                    </Card>
                 </div>
             </div>
         </AppLayout>

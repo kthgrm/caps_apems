@@ -116,7 +116,7 @@ const ArchiveAssessmentButton = ({ assessment }: { assessment: ImpactAssessment 
                         <Button
                             onClick={handleArchive}
                             disabled={isLoading || !password.trim()}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-red-700 hover:bg-red-800"
                         >
                             {isLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>
@@ -231,8 +231,13 @@ export const columns: ColumnDef<ImpactAssessment>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                            <Link href={`/admin/impact-assessment/${impactAssessment.id}/details`} className="font-light">
+                            <Link href={`/admin/impact-assessment/assessments/${impactAssessment.id}`} className="font-light">
                                 View details
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/impact-assessment/assessments/${impactAssessment.id}/edit`} className="font-light">
+                                Edit assessment
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

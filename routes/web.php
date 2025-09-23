@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AwardController;
+use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ImpactAssessmentController;
 use App\Http\Controllers\Admin\InternationalPartnerController;
@@ -41,6 +42,10 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('projects');
             Route::get('projects/{project}', [TechnologyTransferController::class, 'projectDetails'])
                 ->name('project');
+            Route::get('projects/{project}/edit', [TechnologyTransferController::class, 'projectEdit'])
+                ->name('project.edit');
+            Route::put('projects/{project}', [TechnologyTransferController::class, 'projectUpdate'])
+                ->name('projects.update');
             Route::patch('projects/{project}/archive', [TechnologyTransferController::class, 'archive'])
                 ->name('projects.archive');
         });
@@ -56,10 +61,14 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('colleges');
             Route::get('{campus}/{college}/assessments', [ImpactAssessmentController::class, 'assessments'])
                 ->name('assessments');
-            Route::get('{impactAssessment}/details', [ImpactAssessmentController::class, 'assessmentDetails'])
+            Route::get('assessments/{impactAssessment}', [ImpactAssessmentController::class, 'assessmentDetails'])
                 ->name('assessment');
+            Route::get('assessments/{impactAssessment}/edit', [ImpactAssessmentController::class, 'assessmentEdit'])
+                ->name('assessments.edit');
+            Route::put('assessments/{impactAssessment}', [ImpactAssessmentController::class, 'assessmentUpdate'])
+                ->name('assessments.update');
             Route::patch('{impactAssessment}/archive', [ImpactAssessmentController::class, 'archive'])
-                ->name('assessment.archive');
+                ->name('assessments.archive');
         });
 
         // Modalities Routes
@@ -75,6 +84,10 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('modalities');
             Route::get('{modality}/details', [AdminModalitiesController::class, 'modalityDetails'])
                 ->name('modality');
+            Route::get('{modality}/edit', [AdminModalitiesController::class, 'modalityEdit'])
+                ->name('modality.edit');
+            Route::put('{modality}', [AdminModalitiesController::class, 'modalityUpdate'])
+                ->name('modality.update');
             Route::patch('{modality}/archive', [AdminModalitiesController::class, 'archive'])
                 ->name('modality.archive');
         });
@@ -92,6 +105,10 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('awards');
             Route::get('awards/{award}', [AwardController::class, 'awardDetails'])
                 ->name('award');
+            Route::get('awards/{award}/edit', [AwardController::class, 'awardEdit'])
+                ->name('award.edit');
+            Route::put('awards/{award}', [AwardController::class, 'awardUpdate'])
+                ->name('award.update');
             Route::patch('awards/{award}/archive', [AwardController::class, 'archive'])
                 ->name('award.archive');
         });
@@ -107,14 +124,36 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('colleges');
             Route::get('{campus}/{college}/partnerships', [InternationalPartnerController::class, 'partnerships'])
                 ->name('partnerships');
-            Route::get('{partnership}/details', [InternationalPartnerController::class, 'partnershipDetails'])
+            Route::get('partnerships/{partnership}', [InternationalPartnerController::class, 'partnershipDetails'])
                 ->name('partnership');
-            Route::patch('{partnership}/archive', [InternationalPartnerController::class, 'archive'])
+            Route::get('partnerships/{partnership}/edit', [InternationalPartnerController::class, 'partnershipEdit'])
+                ->name('partnership.edit');
+            Route::put('partnerships/{partnership}', [InternationalPartnerController::class, 'partnershipUpdate'])
+                ->name('partnership.update');
+            Route::patch('partnerships/{partnership}/archive', [InternationalPartnerController::class, 'archive'])
                 ->name('partnership.archive');
         });
 
         // Resolution Routes
-        Route::resource('resolutions', ResolutionController::class);
+        Route::group([
+            'prefix' => 'resolutions',
+            'as' => 'resolutions.'
+        ], function () {
+            Route::get('/', [ResolutionController::class, 'index'])
+                ->name('index');
+            Route::get('create', [ResolutionController::class, 'create'])
+                ->name('create');
+            Route::post('/', [ResolutionController::class, 'store'])
+                ->name('store');
+            Route::get('{resolution}', [ResolutionController::class, 'show'])
+                ->name('show');
+            Route::get('{resolution}/edit', [ResolutionController::class, 'edit'])
+                ->name('edit');
+            Route::put('{resolution}', [ResolutionController::class, 'update'])
+                ->name('update');
+            Route::patch('{resolution}/archive', [ResolutionController::class, 'archive'])
+                ->name('archive');
+        });
 
         // User Management Routes
         Route::patch('users/bulk-activate', [AdminUserController::class, 'bulkActivate'])
@@ -162,6 +201,27 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('impact-assessments');
             Route::get('impact-assessments/pdf', [ReportController::class, 'impactAssessmentsPdf'])
                 ->name('impact-assessments.pdf');
+        });
+
+        // Campus Routes
+        Route::group([
+            'prefix' => 'campus',
+            'as' => 'campus.'
+        ], function () {
+            Route::get('/', [CampusController::class, 'index'])
+                ->name('index');
+            Route::get('create', [CampusController::class, 'create'])
+                ->name('create');
+            Route::get('{campus}', [CampusController::class, 'show'])
+                ->name('show');
+            Route::post('/', [CampusController::class, 'store'])
+                ->name('store');
+            Route::get('{campus}/edit', [CampusController::class, 'edit'])
+                ->name('edit');
+            Route::patch('{campus}', [CampusController::class, 'update'])
+                ->name('update');
+            Route::delete('{campus}', [CampusController::class, 'destroy'])
+                ->name('destroy');
         });
     });
 

@@ -3,9 +3,128 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Resolution } from "@/types";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Calendar, FileText, MoreHorizontal, Users, Building } from "lucide-react";
+import { ArrowUpDown, Calendar, FileText, MoreHorizontal, Users, Building, Trash } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import InputError from "@/components/input-error";
+
+const ArchiveResolution = ({ resolution }: { resolution: Resolution }) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const handleArchive = () => {
+        if (!password.trim()) {
+            setErrorMessage('Please enter your password to confirm.');
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage('');
+
+        router.patch(`/admin/resolutions/${resolution.id}/archive`, {
+            password: password
+        }, {
+            onSuccess: () => {
+                setIsDialogOpen(false);
+                setPassword('');
+                setErrorMessage('');
+                setIsLoading(false);
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                if (errors.password) {
+                    setErrorMessage(errors.password);
+                } else if (errors.message) {
+                    setErrorMessage(errors.message);
+                } else {
+                    setErrorMessage('Archive failed. Please try again.');
+                }
+            }
+        });
+    };
+
+    const resetDialog = () => {
+        setIsDialogOpen(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
+    return (
+        <>
+            <DropdownMenuItem
+                variant="destructive"
+                className="flex items-center gap-2"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Small delay to let dropdown close first
+                    setTimeout(() => setIsDialogOpen(true), 100);
+                }}
+            >
+                <Trash className="h-4 w-4" />
+                Delete project
+            </DropdownMenuItem>
+
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if (!open) {
+                    resetDialog();
+                }
+            }}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            You are about to delete the resolution "{resolution.resolution_number}". This action requires password confirmation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-1 items-center gap-4">
+                            <label htmlFor="password" className="text-sm font-medium">
+                                Password
+                            </label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="col-span-3"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleArchive();
+                                    }
+                                }}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <InputError message={errorMessage} className="col-span-4" />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={resetDialog}
+                            disabled={isLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleArchive}
+                            disabled={isLoading || !password.trim()}
+                            className="bg-red-700 hover:bg-red-800"
+                        >
+                            {isLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+};
 
 export const columns: ColumnDef<Resolution>[] = [
     {
@@ -35,7 +154,6 @@ export const columns: ColumnDef<Resolution>[] = [
             const resolution = row.original
             return (
                 <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-purple-600" />
                     <span>{resolution.user.name}</span>
                 </div>
             )
@@ -52,7 +170,6 @@ export const columns: ColumnDef<Resolution>[] = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <Building className="h-4 w-4 text-green-600" />
                     <span>{partnerAgency}</span>
                 </div>
             )
@@ -69,7 +186,6 @@ export const columns: ColumnDef<Resolution>[] = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-blue-500" />
                     <span className="text-sm">
                         {new Date(date).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -91,12 +207,9 @@ export const columns: ColumnDef<Resolution>[] = [
             if (!date) return <span className="text-xs text-muted-foreground">Not set</span>
 
             const expirationDate = new Date(date);
-            const currentDate = new Date();
-            const isExpired = expirationDate < currentDate;
 
             return (
                 <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-red-500" />
                     <span className="text-sm">
                         {expirationDate.toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -152,13 +265,8 @@ export const columns: ColumnDef<Resolution>[] = [
                                 Edit resolution
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="font-light">
-                            Generate report
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive">
-                            Delete resolution
-                        </DropdownMenuItem>
+                        <ArchiveResolution resolution={resolution} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             )

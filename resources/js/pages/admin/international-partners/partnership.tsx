@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Users, Building, MapPin, Calendar, Clock, FileText, Download, Target, Image } from 'lucide-react';
+import { Users, Building, MapPin, Calendar, Clock, FileText, Download, Target, Image, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
 
@@ -66,7 +66,7 @@ export default function PartnershipDetails() {
         setIsLoading(true);
         setErrorMessage('');
 
-        router.patch(`/admin/international-partners/${partnership.id}/archive`, {
+        router.patch(`/admin/international-partners/partnerships/${partnership.id}/archive`, {
             password: password
         }, {
             onSuccess: () => {
@@ -75,8 +75,6 @@ export default function PartnershipDetails() {
                 setErrorMessage('');
                 setIsLoading(false);
                 toast.success('Partnership archived successfully.');
-                // Redirect back to partnerships list
-                router.visit(`/admin/international-partners/${partnership.campus_college.campus.id}/${partnership.campus_college.college.id}/partnerships`);
             },
             onError: (errors) => {
                 setIsLoading(false);
@@ -119,10 +117,16 @@ export default function PartnershipDetails() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Partnership Details</h1>
-                    <div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => router.visit(`/admin/international-partners/partnerships/${partnership.id}/edit`)}
+                        >
+                            Edit Partnership
+                        </Button>
                         <Button
                             variant="destructive"
-                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            className="bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
                             Delete Partnership
@@ -158,65 +162,37 @@ export default function PartnershipDetails() {
                                         </Label>
                                         <Input value={partnership.location} readOnly className="mt-1" />
                                     </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Activity Type</Label>
-                                        <div className="mt-1">
-                                            <Badge className={`${getActivityColor(partnership.activity_conducted)} border`}>
-                                                {partnership.activity_conducted.charAt(0).toUpperCase() + partnership.activity_conducted.slice(1)}
-                                            </Badge>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-2">
+                                        <div>
+                                            <Label className="text-sm font-light">Start Date</Label>
+                                            <Input
+                                                value={partnership.start_date ? new Date(partnership.start_date).toLocaleDateString() : 'Not set'}
+                                                readOnly
+                                                className="mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm font-light">End Date</Label>
+                                            <Input
+                                                value={partnership.end_date ? new Date(partnership.end_date).toLocaleDateString() : 'Not set'}
+                                                readOnly
+                                                className="mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm font-light">Activity Type</Label>
+                                            <div className="mt-1">
+                                                <Badge className={`${getActivityColor(partnership.activity_conducted)} border`}>
+                                                    {partnership.activity_conducted.charAt(0).toUpperCase() + partnership.activity_conducted.slice(1)}
+                                                </Badge>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Timeline Information */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Calendar className="h-5 w-5" />
-                                    Timeline
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <Label className="text-sm font-light">Start Date</Label>
-                                        <Input
-                                            value={partnership.start_date ? new Date(partnership.start_date).toLocaleDateString() : 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">End Date</Label>
-                                        <Input
-                                            value={partnership.end_date ? new Date(partnership.end_date).toLocaleDateString() : 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light flex items-center gap-1">
-                                            <Clock className="h-4 w-4" />
-                                            Duration
-                                        </Label>
-                                        <Input
-                                            value={
-                                                partnership.start_date && partnership.end_date
-                                                    ? (() => {
-                                                        const start = new Date(partnership.start_date);
-                                                        const end = new Date(partnership.end_date);
-                                                        const diffMs = end.getTime() - start.getTime();
-                                                        if (isNaN(diffMs) || diffMs < 0) return 'Invalid dates';
-                                                        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)) + 1;
-                                                        return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
-                                                    })()
-                                                    : 'Not set'
-                                            }
-                                            readOnly
-                                            className="mt-1"
-                                        />
+                                    <div className='col-span-2'>
+                                        <Label className="text-sm font-light">Narrative</Label>
+                                        <div className="mt-1 p-3 bg-muted rounded-md text-sm">
+                                            {partnership.narrative || 'No narrative provided'}
+                                        </div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -271,62 +247,10 @@ export default function PartnershipDetails() {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Narrative */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <FileText className="h-5 w-5" />
-                                    Activity Narrative
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                    {partnership.narrative || 'No narrative provided'}
-                                </div>
-                            </CardContent>
-                        </Card>
                     </div>
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Attachment */}
-                        {partnership.attachment_path && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Download className="h-5 w-5" />
-                                        Attachment
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                                        {partnership.attachment_path ? (
-                                            <Dialog>
-                                                <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                    <Image className="h-4 w-4" />
-                                                    <p className="text-sm">Partnership Attachment</p>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Partnership Attachment</DialogTitle>
-                                                        <DialogDescription>
-                                                            <img src={asset(partnership.attachment_path)} alt="Partnership Attachment" className="w-full h-auto" />
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                </DialogContent>
-                                            </Dialog>
-                                        ) : (
-                                            <div className="text-sm gap-2 flex items-center">
-                                                <Image className="h-4 w-4" />
-                                                No Attachment
-                                            </div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-
                         {/* Department */}
                         <Card>
                             <CardHeader>
@@ -373,6 +297,60 @@ export default function PartnershipDetails() {
                             </CardContent>
                         </Card>
 
+                        {/* Attachment */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Download className="h-5 w-5" />
+                                    Attachments
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center p-3 border rounded-lg">
+                                    {partnership.attachment_path ? (
+                                        <Dialog>
+                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
+                                                <Image className="h-4 w-4" />
+                                                <p className="text-sm">Partnership Attachment</p>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Partnership Attachment</DialogTitle>
+                                                    <DialogDescription>
+                                                        <img src={asset(partnership.attachment_path)} alt="Partnership Attachment" className="w-full h-auto" />
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        <div className="text-sm gap-2 flex items-center">
+                                            <Image className="h-4 w-4" />
+                                            No Attachment
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <ExternalLink className="h-4 w-4" />
+                                            {partnership.attachment_link ? (
+                                                <a
+                                                    href={partnership.attachment_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-primary hover:underline text-sm flex items-center gap-1 truncate"
+                                                >
+                                                    {partnership.attachment_link}
+                                                </a>
+                                            ) : (
+                                                <span className="text-sm">No Attachment Link</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         {/* Record Details */}
                         <Card>
                             <CardHeader>
@@ -385,15 +363,11 @@ export default function PartnershipDetails() {
                                         <span>{partnership.created_at ? new Date(partnership.created_at).toLocaleDateString() : 'Not Set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Created By</span>
-                                        <span>{partnership.user.name}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Date Last Updated</span>
                                         <span>{partnership.updated_at ? new Date(partnership.updated_at).toLocaleDateString() : 'Not Set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Last Updated By</span>
+                                        <span className="text-muted-foreground">Created By</span>
                                         <span>{partnership.user.name}</span>
                                     </div>
                                 </div>

@@ -116,7 +116,7 @@ const ArchiveProjectButton = ({ project }: { project: Project }) => {
                         <Button
                             onClick={handleArchive}
                             disabled={isLoading || !password.trim()}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-red-700 hover:bg-red-800"
                         >
                             {isLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>
@@ -243,6 +243,11 @@ export const columns: ColumnDef<Project>[] = [
                         <DropdownMenuItem asChild>
                             <Link href={`/admin/technology-transfer/projects/${project.id}`} className="font-light">
                                 View details
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/technology-transfer/projects/${project.id}/edit`} className="font-light">
+                                Edit project
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

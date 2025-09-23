@@ -108,10 +108,16 @@ export default function ImpactAssessmentDetails() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
                     <h1 className='text-2xl font-bold'>Impact Assessment Details</h1>
-                    <div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => router.visit(`/admin/impact-assessment/assessments/${impactAssessment.id}/edit`)}
+                        >
+                            Edit Assessment
+                        </Button>
                         <Button
                             variant="destructive"
-                            className="w-full justify-start bg-red-800 hover:bg-red-900"
+                            className="bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
                             Delete Assessment
@@ -139,6 +145,10 @@ export default function ImpactAssessmentDetails() {
                                     <div>
                                         <Label className="text-sm font-medium">Primary Beneficiary</Label>
                                         <Input value={impactAssessment.beneficiary} readOnly className="mt-1" />
+                                    </div>
+                                    <div className="cols-span-1 md:col-span-2">
+                                        <Label className="text-sm font-medium">Geographic Coverage</Label>
+                                        <Input value={impactAssessment.geographic_coverage} readOnly className="mt-1" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -193,56 +203,6 @@ export default function ImpactAssessmentDetails() {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Geographic Coverage */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <MapPin className="h-5 w-5" />
-                                    Geographic Coverage
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="p-2 bg-muted rounded-md">
-                                    <div className="flex items-center gap-3 ">
-                                        <MapPinned className="h-5 w-5 text-muted-foreground mt-0.5" />
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            {impactAssessment.geographic_coverage}
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Related Project Information */}
-                        {impactAssessment.project && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-5 w-5" />
-                                        Related Project
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full flex items-center justify-start gap-2"
-                                                onClick={() => window.location.href = `/admin/technology-transfer/projects/${impactAssessment.project.id}`}
-                                            >
-                                                <Paperclip className="h-5 w-5" />
-                                                {impactAssessment.project.name}
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Go to project details</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-
-                                </CardContent>
-                            </Card>
-                        )}
                     </div>
 
                     {/* Sidebar */}
@@ -295,6 +255,44 @@ export default function ImpactAssessmentDetails() {
                             </Card>
                         )}
 
+                        {/* Related Project Information */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <FileText className="h-5 w-5" />
+                                    Related Project
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`w-full flex items-center justify-start gap-2 ${impactAssessment.project.is_archived
+                                                ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-500'
+                                                : ''
+                                                }`}
+                                            onClick={impactAssessment.project.is_archived
+                                                ? undefined
+                                                : () => window.location.href = `/admin/technology-transfer/projects/${impactAssessment.project.id}`
+                                            }
+                                        >
+                                            <Paperclip className="h-5 w-5" />
+                                            {impactAssessment.project.name}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            {impactAssessment.project.is_archived
+                                                ? 'This project has been deleted'
+                                                : 'Go to project details'
+                                            }
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </CardContent>
+                        </Card>
+
                         {/* Record Details */}
                         <Card>
                             <CardHeader>
@@ -307,15 +305,11 @@ export default function ImpactAssessmentDetails() {
                                         <span>{impactAssessment.created_at ? new Date(impactAssessment.created_at).toLocaleDateString() : 'Not Set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Created By</span>
-                                        <span>{impactAssessment.user.name}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Date Last Updated</span>
                                         <span>{impactAssessment.updated_at ? new Date(impactAssessment.updated_at).toLocaleDateString() : 'Not Set'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Last Updated By</span>
+                                        <span className="text-muted-foreground">Created By</span>
                                         <span>{impactAssessment.user.name}</span>
                                     </div>
                                 </div>
