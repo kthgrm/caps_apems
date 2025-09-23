@@ -6,9 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class College extends Model
 {
+    protected $fillable = [
+        'name',
+        'code',
+        'logo'
+    ];
+
     public function campuses()
     {
-        return $this->belongsToMany(Campus::class);
+        return $this->belongsToMany(Campus::class, 'campus_college');
+    }
+
+    public function campusColleges()
+    {
+        return $this->hasMany(CampusCollege::class);
     }
 
     public function projects()
@@ -19,6 +30,11 @@ class College extends Model
     public function awards()
     {
         return $this->hasManyThrough(Award::class, CampusCollege::class);
+    }
+
+    public function international_partners()
+    {
+        return $this->hasManyThrough(InternationalPartner::class, CampusCollege::class);
     }
 
     public function partnerships()

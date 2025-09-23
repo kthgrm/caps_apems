@@ -9,7 +9,7 @@ type Campus = BaseCampus & {
 };
 
 import { Head, Link, usePage } from "@inertiajs/react";
-import { Building, Plus } from "lucide-react";
+import { Plus, School } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { columns } from "./components/columns";
@@ -49,16 +49,7 @@ export default function CampusIndex() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold">Campus Management</h1>
-                        <p className="text-gray-600">
-                            Manage campuses information
-                        </p>
                     </div>
-                    <Button asChild>
-                        <Link href="/admin/campus/create">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Campus
-                        </Link>
-                    </Button>
                 </div>
 
                 {/* Stats Card */}
@@ -66,7 +57,7 @@ export default function CampusIndex() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Campus</CardTitle>
-                            <Building className="h-4 text-stone-600" />
+                            <School className="h-4 text-stone-600" />
                         </CardHeader>
                         <CardContent>
                             <p className="text-2xl font-bold text-gray-900">
@@ -79,7 +70,15 @@ export default function CampusIndex() {
                 {/* Data Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Campus List</CardTitle>
+                        <CardTitle className="flex items-center justify-between">
+                            Campus List
+                            <Button asChild>
+                                <Link href="/admin/campus/create">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Campus
+                                </Link>
+                            </Button>
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <DataTable

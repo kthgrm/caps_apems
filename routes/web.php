@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AwardController;
 use App\Http\Controllers\Admin\CampusController;
+use App\Http\Controllers\Admin\CollegeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ImpactAssessmentController;
 use App\Http\Controllers\Admin\InternationalPartnerController;
@@ -222,6 +223,38 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('update');
             Route::delete('{campus}', [CampusController::class, 'destroy'])
                 ->name('destroy');
+        });
+
+        // College Routes
+        Route::group([
+            'prefix' => 'college',
+            'as' => 'college.'
+        ], function () {
+            Route::get('/', [CollegeController::class, 'index'])
+                ->name('index');
+            Route::get('create', [CollegeController::class, 'create'])
+                ->name('create');
+            Route::post('/', [CollegeController::class, 'store'])
+                ->name('store');
+
+            // Individual college routes (using campus_college ID for show)
+            Route::get('{campusCollege}', [CollegeController::class, 'show'])
+                ->name('show')
+                ->where('campusCollege', '[0-9]+');
+            Route::get('college/{college}/edit', [CollegeController::class, 'edit'])
+                ->name('edit')
+                ->where('college', '[0-9]+');
+            Route::put('college/{college}', [CollegeController::class, 'update'])
+                ->name('update')
+                ->where('college', '[0-9]+');
+            Route::delete('college/{college}', [CollegeController::class, 'destroy'])
+                ->name('destroy')
+                ->where('college', '[0-9]+');
+
+            // Campus filtering route
+            Route::get('campus/{campus}', [CollegeController::class, 'filterByCampus'])
+                ->name('campus')
+                ->where('campus', '[0-9]+');
         });
     });
 

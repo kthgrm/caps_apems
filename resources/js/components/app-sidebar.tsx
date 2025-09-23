@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Award, BookOpen, Cpu, Folder, Handshake, LayoutGrid, Printer, User2 } from 'lucide-react';
+import { Award, BookOpen, Building, Cpu, Folder, Handshake, LayoutGrid, Printer, School, User2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const adminNavItems: NavItem[] = [
@@ -24,7 +24,9 @@ const adminNavItems: NavItem[] = [
     { title: 'International Partners', href: '/admin/international-partners', icon: Handshake },
     { title: 'Awards & Recognition', href: '/admin/awards-recognition', icon: Award },
     { title: 'Resolutions', href: '/admin/resolutions', icon: BookOpen },
-    { title: 'User Management', href: '/admin/users', icon: User2 },
+    { title: 'Campus', href: '/admin/campus', icon: School },
+    { title: 'College', href: '/admin/college', icon: Building },
+    { title: 'Users', href: '/admin/users', icon: User2 },
     {
         title: 'Reports', href: '#', icon: Printer, isDropdown: true,
         subItems: [

@@ -91,30 +91,25 @@ export default function CampusEdit() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-12 w-12">
-                                    <AvatarImage
-                                        src={campus.logo ? `/storage/${campus.logo}` : undefined}
-                                        alt={`${campus.name} logo`}
-                                    />
-                                    <AvatarFallback className="bg-slate-100">
-                                        <Building className="h-6 w-6 text-slate-600" />
-                                    </AvatarFallback>
-                                </Avatar>
                                 <div>
                                     <h1 className="text-2xl font-bold">Edit Campus</h1>
                                     <p className="text-muted-foreground">Update campus information</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex gap-2">
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-slate-600 hover:bg-slate-700"
                             >
-                                {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                <Save className="h-4 w-4 mr-2" />
-                                Save Changes
+                                {processing ? 'Updating...' : 'Update Campus'}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => window.history.back()}
+                            >
+                                Cancel
                             </Button>
                         </div>
                     </div>

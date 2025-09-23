@@ -2,8 +2,11 @@ import AppLayout from '@/layouts/app-layout';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     BarChart,
     Bar,
@@ -16,7 +19,8 @@ import {
     Line,
     PieChart,
     Pie,
-    Cell
+    Cell,
+    ReferenceLine
 } from 'recharts';
 import {
     Users,
@@ -104,6 +108,8 @@ export default function Dashboard({
     campusStats,
     recentActivities,
 }: Props) {
+    const [target, setTarget] = useState<number>(10);
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString();
     };
@@ -134,10 +140,11 @@ export default function Dashboard({
         }
     };
 
-    // Prepare data for campus performance pie chart
-    const campusPieData = campusStats.map((campus, index) => ({
+    // Prepare data for campus performance bar chart
+    const campusPerformanceData = campusStats.map((campus, index) => ({
         name: campus.name,
-        value: campus.total_projects + campus.total_awards + campus.total_partners,
+        projects: campus.total_projects,
+        percentage: target > 0 ? (campus.total_projects / target) * 100 : 0,
         fill: COLORS[index % COLORS.length]
     }));
 
@@ -179,16 +186,13 @@ export default function Dashboard({
                     </Card>
                 </div>
 
-                <div className='grid grid-cols-1 lg:grid-cols-5 gap-4'>
-                    <Card className='lg:col-span-3'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                    <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
                                 Monthly Submissions
                             </CardTitle>
-                            <CardDescription>
-                                Projects, Awards, and International Partners submissions by month
-                            </CardDescription>
                         </CardHeader>
                         <CardContent className="pl-2">
                             <ResponsiveContainer width="100%" height={300}>
@@ -205,35 +209,87 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
-                    <Card className='lg:col-span-2'>
+                    <Card>
                         <CardHeader>
                             <CardTitle>Campus Performance</CardTitle>
-                            <CardDescription>Total submissions by campus</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={campusPieData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name = '', percent = 0 }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {campusPieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            <div className="mb-4 flex items-center">
+                                <Label htmlFor="target-input" className="text-sm font-medium ">
+                                    Target Technology Transfer:
+                                </Label>
+                                <Input
+                                    id="target-input"
+                                    type="number"
+                                    value={target}
+                                    onChange={(e) => setTarget(Number(e.target.value))}
+                                    placeholder="Enter target number"
+                                    className="ml-2 w-20"
+                                    min="1"
+                                />
+                            </div>
+                            {campusPerformanceData.length === 0 ? (
+                                <div className="flex items-center justify-center h-64 text-muted-foreground">
+                                    No campus data available
+                                </div>
+                            ) : campusPerformanceData.every(campus => campus.projects === 0) ? (
+                                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                                    <div className="text-lg mb-2">No technology transfers yet</div>
+                                    <div className="text-sm">Data will appear when projects are submitted</div>
+                                </div>
+                            ) : (
+                                <>
+                                    <ResponsiveContainer width="100%" height={180}>
+                                        <BarChart
+                                            data={campusPerformanceData}
+                                            layout="vertical"
+                                            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                                        >
+                                            <XAxis type="number" domain={[0, target + 2]} hide />
+                                            <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                                            <Tooltip
+                                                content={({ active, payload, label }) => {
+                                                    if (active && payload && payload.length) {
+                                                        const data = payload[0].payload;
+                                                        return (
+                                                            <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+                                                                <p className="font-medium">{label}</p>
+                                                                <p className="text-blue-600">{data.projects} technology transfers</p>
+                                                                <p className="text-gray-500">{data.percentage.toFixed(1)}% of target</p>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }}
+                                            />
+                                            <Bar
+                                                dataKey="projects"
+                                                fill="#3b82f6"
+                                            />
+                                            <ReferenceLine x={target} stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div className="mt-2 space-y-1">
+                                        <div className="text-xs text-muted-foreground text-center">
+                                            Target: {target} transfers per campus
+                                        </div>
+                                        <div className="flex items-center justify-center gap-4 text-xs">
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-3 h-2 bg-blue-500 rounded-sm"></div>
+                                                <span>Actual</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-3 h-0.5 bg-red-500" style={{ borderStyle: 'dashed' }}></div>
+                                                <span>Target</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 
-                    <Card className='lg:col-span-2'>
+                    <Card>
                         <CardHeader>
                             <CardTitle>Campus Statistics</CardTitle>
                             <CardDescription>
@@ -268,7 +324,7 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
-                    <Card className='lg:col-span-3'>
+                    <Card>
                         <CardHeader>
                             <CardTitle>Recent Activities</CardTitle>
                             <CardDescription>

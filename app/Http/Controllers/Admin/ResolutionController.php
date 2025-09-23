@@ -62,6 +62,10 @@ class ResolutionController extends Controller
      */
     public function show(Resolution $resolution)
     {
+        if ($resolution->is_archived) {
+            abort(404);
+        }
+
         $resolution->load('user');
 
         return Inertia::render('admin/resolution/show', [
@@ -74,6 +78,10 @@ class ResolutionController extends Controller
      */
     public function edit(Resolution $resolution)
     {
+        if ($resolution->is_archived) {
+            abort(404);
+        }
+
         $resolution->load('user');
 
         return Inertia::render('admin/resolution/edit', [

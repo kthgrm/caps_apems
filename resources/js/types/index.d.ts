@@ -68,6 +68,8 @@ export interface College {
 
 export interface CampusCollege {
     id: number;
+    campus_id: number;
+    college_id: number;
     campus: Campus;
     college: College;
     created_at: string;

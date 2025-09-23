@@ -1,42 +1,39 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppLayout from "@/layouts/app-layout";
-import { BreadcrumbItem, Campus as BaseCampus } from "@/types";
-
-type Campus = BaseCampus & {
-    projects_count?: number;
-    colleges_count?: number;
-    awards_count?: number;
-};
+import { BreadcrumbItem, Campus, CampusCollege, College } from "@/types";
 
 import { Head, Link, usePage } from "@inertiajs/react";
-import { Building, Edit, Calendar } from "lucide-react";
+import { GraduationCap, Edit, Building, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-
 type PageProps = {
-    campus: Campus;
-    flash?: { message?: string }
+    college: CampusCollege;
+    flash?: { message?: string };
 };
 
-export default function CampusShow() {
-    const { flash, campus } = usePage<PageProps>().props;
+export default function ShowCollege() {
+    const { flash, college } = usePage<PageProps>().props;
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Campus Management',
-            href: '/admin/campus',
+            title: 'College Management',
+            href: '/admin/college',
         },
         {
-            title: campus.name,
-            href: `/admin/campus/${campus.id}`,
+            title: college.campus.name,
+            href: `/admin/college/campus/${college.campus.id}`,
+        },
+        {
+            title: college.college.name,
+            href: `/admin/college/${college.id}`,
         },
     ];
 
@@ -57,9 +54,13 @@ export default function CampusShow() {
         });
     };
 
+    const asset = (path: string) => {
+        return `/storage/${path}`;
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Campus: ${campus.name}`} />
+            <Head title={college.college.name} />
             <Toaster position="bottom-right" />
 
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
@@ -68,16 +69,16 @@ export default function CampusShow() {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3">
                             <div>
-                                <h1 className="text-2xl font-bold">{campus.name}</h1>
-                                <p className="text-muted-foreground">Campus Details & Information</p>
+                                <h1 className="text-2xl font-bold">{college.college.name}</h1>
+                                <p className="text-muted-foreground">College Details & Information</p>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" asChild>
-                            <Link href={`/admin/campus/${campus.id}/edit`}>
+                            <Link href={`/admin/college/college/${college.college.id}/edit`}>
                                 <Edit className="h-4 w-4 mr-2" />
-                                Edit Campus
+                                Edit College
                             </Link>
                         </Button>
                     </div>
@@ -90,26 +91,42 @@ export default function CampusShow() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Building className="h-5 w-5" />
-                                    Campus Information
+                                    <GraduationCap className="h-5 w-5" />
+                                    College Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-medium text-muted-foreground">Campus ID</Label>
+                                        <Label className="text-sm font-medium text-muted-foreground">College ID</Label>
                                         <Input
-                                            value={campus.id}
+                                            value={college.id}
                                             readOnly
                                             className="bg-muted"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-medium text-muted-foreground">Campus Name</Label>
+                                        <Label className="text-sm font-medium text-muted-foreground">College Name</Label>
                                         <Input
-                                            value={campus.name}
+                                            value={college.college.name}
                                             readOnly
                                             className="bg-muted font-medium"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-muted-foreground">College Code</Label>
+                                        <Input
+                                            value={college.college.code}
+                                            readOnly
+                                            className="bg-muted font-medium"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-muted-foreground">Campus</Label>
+                                        <Input
+                                            value={college.campus.name}
+                                            readOnly
+                                            className="bg-muted"
                                         />
                                     </div>
                                 </div>
@@ -117,29 +134,28 @@ export default function CampusShow() {
                                 <Separator />
 
                                 <div className="space-y-4">
-                                    <Label className="text-sm font-medium text-muted-foreground">Campus Logo</Label>
-                                    {campus.logo ? (
+                                    <Label className="text-sm font-medium text-muted-foreground">College Logo</Label>
+                                    {college.college.logo ? (
                                         <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
                                             <Avatar className="h-16 w-16">
                                                 <AvatarImage
-                                                    src={`/storage/${campus.logo}`}
-                                                    alt={`${campus.name} logo`}
+                                                    src={asset(college.college.logo)}
+                                                    alt={`${college.college.name} logo`}
                                                 />
                                                 <AvatarFallback>
-                                                    <Building className="h-8 w-8" />
+                                                    <GraduationCap className="h-8 w-8" />
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="overflow-ellipsis">
                                                 <p className="font-medium">Logo Image</p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    Path:
-                                                    /storage/{campus.logo}
+                                                    Path: {college.college.logo}
                                                 </p>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
                                                     className="mt-2"
-                                                    onClick={() => window.open(`/storage/${campus.logo}`, '_blank')}
+                                                    onClick={() => window.open(asset(college.college.logo), '_blank')}
                                                 >
                                                     View Full Size
                                                 </Button>
@@ -148,10 +164,10 @@ export default function CampusShow() {
                                     ) : (
                                         <div className="flex items-center justify-center p-8 border-2 border-dashed border-muted rounded-lg">
                                             <div className="text-center">
-                                                <Building className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                                                <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                                                 <p className="text-muted-foreground">No logo uploaded</p>
                                                 <p className="text-sm text-muted-foreground mt-1">
-                                                    Edit campus to add a logo
+                                                    Edit college to add a logo
                                                 </p>
                                             </div>
                                         </div>
@@ -172,11 +188,11 @@ export default function CampusShow() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
                                     <div className="space-y-2">
                                         <Label className="text-sm font-medium text-muted-foreground">Created At</Label>
                                         <Input
-                                            value={formatDate(campus.created_at)}
+                                            value={formatDate(college.created_at)}
                                             readOnly
                                             className="bg-muted"
                                         />
@@ -184,7 +200,7 @@ export default function CampusShow() {
                                     <div className="space-y-2">
                                         <Label className="text-sm font-medium text-muted-foreground">Last Updated</Label>
                                         <Input
-                                            value={formatDate(campus.updated_at)}
+                                            value={formatDate(college.updated_at)}
                                             readOnly
                                             className="bg-muted"
                                         />
