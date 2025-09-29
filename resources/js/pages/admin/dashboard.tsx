@@ -1,11 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import {
     BarChart,
@@ -15,23 +14,17 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    LineChart,
-    Line,
     PieChart,
     Pie,
     Cell,
-    ReferenceLine
+    Legend
 } from 'recharts';
 import {
-    Users,
     FolderOpen,
     Trophy,
     Globe,
-    GraduationCap,
-    Building,
     TrendingUp,
-    Activity,
-    Calendar
+    Target,
 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -60,43 +53,18 @@ interface MonthlyStats {
 interface CampusStats {
     id: number;
     name: string;
-    code: string;
     total_colleges: number;
     total_projects: number;
     total_awards: number;
     total_partners: number;
 }
 
-interface RecentActivity {
-    id: number;
-    type: string;
-    title: string;
-    description: string;
-    user: string;
-    campus: string;
-    college: string;
-    created_at: string;
-    date_received?: string;
-    location?: string;
-}
-
-interface TopContributor {
-    id: number;
-    name: string;
-    email: string;
-    campus: string;
-    college: string;
-    projects_count: number;
-    awards_count: number;
-    partners_count: number;
-    total_submissions: number;
-}
-
 interface Props {
     overallStats: OverallStats;
     monthlyStats: MonthlyStats[];
     campusStats: CampusStats[];
-    recentActivities: RecentActivity[];
+    selectedYear?: string;
+    availableYears?: string[];
 }
 
 // Chart colors
@@ -106,60 +74,88 @@ export default function Dashboard({
     overallStats,
     monthlyStats,
     campusStats,
-    recentActivities,
+    selectedYear: propSelectedYear,
+    availableYears: propAvailableYears,
 }: Props) {
     const [target, setTarget] = useState<number>(10);
+    const [selectedYear, setSelectedYear] = useState<string>(
+        propSelectedYear || new Date().getFullYear().toString()
+    );
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString();
-    };
+    const availableYears = propAvailableYears || [new Date().getFullYear().toString()];
 
-    const getActivityIcon = (type: string) => {
-        switch (type) {
-            case 'project':
-                return <FolderOpen className="h-4 w-4" />;
-            case 'award':
-                return <Trophy className="h-4 w-4" />;
-            case 'partner':
-                return <Globe className="h-4 w-4" />;
-            default:
-                return <Activity className="h-4 w-4" />;
-        }
-    };
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
 
-    const getActivityBadgeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" => {
-        switch (type) {
-            case 'project':
-                return 'default';
-            case 'award':
-                return 'secondary';
-            case 'partner':
-                return 'outline';
-            default:
-                return 'outline';
-        }
+        router.get(route('admin.dashboard'), { year }, {
+            preserveScroll: true,
+            preserveState: false,
+        });
     };
 
     // Prepare data for campus performance bar chart
     const campusPerformanceData = campusStats.map((campus, index) => ({
         name: campus.name,
         projects: campus.total_projects,
-        percentage: target > 0 ? (campus.total_projects / target) * 100 : 0,
-        fill: COLORS[index % COLORS.length]
+        remaining: Math.max(0, target - campus.total_projects),
+        percentage: target > 0 ? (campus.total_projects / target) * 100 : 0
     }));
+
+    const renderCustomBarLabel = ({ payload, x, y, width, height, value }: any) => {
+        if (!value || value == 0) return <text />;
+        return <text x={x + width / 2} y={y} fill="#666" textAnchor="middle" dy={-6}>{`${value}`}</text>;
+    };
+
+    const renderStackedBarLabel = ({ x, y, width, height, value }: any) => {
+        if (!value || value == 0) return <text />;
+        return (
+            <text
+                x={x + width / 2}
+                y={y + height / 2}
+                fill="#fff"
+                textAnchor="middle"
+                dy={4}
+                fontSize="12"
+            >
+                {value}
+            </text>
+        );
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                    <div>
+                        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                        <p className="text-sm text-muted-foreground">Showing data for {selectedYear}</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <Label htmlFor="year-filter" className="text-sm font-medium">
+                                Filter by Year:
+                            </Label>
+                            <Select value={selectedYear} onValueChange={handleYearChange}>
+                                <SelectTrigger className="w-32">
+                                    <SelectValue placeholder="Select year" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableYears.map((year) => (
+                                        <SelectItem key={year} value={year}>
+                                            {year}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     <Card className='bg-linear-to-b from-indigo-600 to-sky-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Technology Transfer</CardTitle>
+                            <CardTitle className="text-sm font-medium">Technology Transfers</CardTitle>
                             <FolderOpen className="w-4" />
                         </CardHeader>
                         <CardContent>
@@ -168,7 +164,7 @@ export default function Dashboard({
                     </Card>
                     <Card className='bg-linear-to-b from-amber-500 to-yellow-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Awards and Recognition</CardTitle>
+                            <CardTitle className="text-sm font-medium">Awards & Recognitions</CardTitle>
                             <Trophy className="w-4" />
                         </CardHeader>
                         <CardContent>
@@ -191,8 +187,11 @@ export default function Dashboard({
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
-                                Monthly Submissions
+                                Monthly Activity Overview
                             </CardTitle>
+                            <CardDescription>
+                                Tracking submissions across all categories for {selectedYear}
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="pl-2">
                             <ResponsiveContainer width="100%" height={300}>
@@ -201,9 +200,10 @@ export default function Dashboard({
                                     <XAxis dataKey="month" />
                                     <YAxis />
                                     <Tooltip />
-                                    <Bar dataKey="projects" fill="#3b82f6" name="Projects" />
-                                    <Bar dataKey="awards" fill="#10b981" name="Awards" />
-                                    <Bar dataKey="partners" fill="#f59e0b" name="Partners" />
+                                    <Legend />
+                                    <Bar dataKey="awards" fill="#f59e0b" name="Awards" label={renderCustomBarLabel} />
+                                    <Bar dataKey="partners" fill="#10b981" name="Partnerships" label={renderCustomBarLabel} />
+                                    <Bar dataKey="projects" fill="#3b82f6" name="Technology Transfers" label={renderCustomBarLabel} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -211,23 +211,29 @@ export default function Dashboard({
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Campus Performance</CardTitle>
+                            <CardTitle className='flex items-center justify-between gap-2'>
+                                <p className='flex items-center gap-2'>
+                                    <Target />
+                                    Campus Performance Tracker
+                                </p>
+                                <div className="flex items-center ml-auto">
+                                    <Label htmlFor="target-input" className="text-sm font-medium">Target:</Label>
+                                    <Input
+                                        id="target-input"
+                                        type="number"
+                                        value={target}
+                                        onChange={(e) => setTarget(Number(e.target.value))}
+                                        placeholder="Enter target"
+                                        className="ml-2 w-20"
+                                        min="1"
+                                    />
+                                </div>
+                            </CardTitle>
+                            <CardDescription>
+                                Progress toward technology transfer goals by campus
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="mb-4 flex items-center">
-                                <Label htmlFor="target-input" className="text-sm font-medium ">
-                                    Target Technology Transfer:
-                                </Label>
-                                <Input
-                                    id="target-input"
-                                    type="number"
-                                    value={target}
-                                    onChange={(e) => setTarget(Number(e.target.value))}
-                                    placeholder="Enter target number"
-                                    className="ml-2 w-20"
-                                    min="1"
-                                />
-                            </div>
                             {campusPerformanceData.length === 0 ? (
                                 <div className="flex items-center justify-center h-64 text-muted-foreground">
                                     No campus data available
@@ -239,14 +245,10 @@ export default function Dashboard({
                                 </div>
                             ) : (
                                 <>
-                                    <ResponsiveContainer width="100%" height={180}>
-                                        <BarChart
-                                            data={campusPerformanceData}
-                                            layout="vertical"
-                                            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-                                        >
-                                            <XAxis type="number" domain={[0, target + 2]} hide />
-                                            <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <BarChart data={campusPerformanceData}>
+                                            <XAxis dataKey="name" />
+                                            <YAxis hide />
                                             <Tooltip
                                                 content={({ active, payload, label }) => {
                                                     if (active && payload && payload.length) {
@@ -265,23 +267,22 @@ export default function Dashboard({
                                             <Bar
                                                 dataKey="projects"
                                                 fill="#3b82f6"
+                                                stackId="a"
+                                                name="Completed"
+                                                label={renderStackedBarLabel}
                                             />
-                                            <ReferenceLine x={target} stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" />
+                                            <Bar
+                                                dataKey="remaining"
+                                                fill="#c5c7cb"
+                                                stackId="a"
+                                                name="Remaining"
+                                            />
+                                            <Legend />
                                         </BarChart>
                                     </ResponsiveContainer>
                                     <div className="mt-2 space-y-1">
                                         <div className="text-xs text-muted-foreground text-center">
                                             Target: {target} transfers per campus
-                                        </div>
-                                        <div className="flex items-center justify-center gap-4 text-xs">
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-3 h-2 bg-blue-500 rounded-sm"></div>
-                                                <span>Actual</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-3 h-0.5 bg-red-500" style={{ borderStyle: 'dashed' }}></div>
-                                                <span>Target</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </>
@@ -289,71 +290,116 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="col-span-full">
                         <CardHeader>
-                            <CardTitle>Campus Statistics</CardTitle>
+                            <CardTitle>Campus Distribution Analytics</CardTitle>
                             <CardDescription>
-                                Detailed breakdown by campus
+                                Comparative breakdown of submissions across all university campuses for {selectedYear}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                {campusStats.map((campus) => (
-                                    <div key={campus.id} className="border rounded-lg p-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h3 className="font-semibold">{campus.name}</h3>
-                                            <Badge variant="outline">{campus.total_colleges} Colleges</Badge>
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-4 text-sm">
-                                            <div className="text-center">
-                                                <div className="font-medium text-blue-600">{campus.total_projects}</div>
-                                                <div className="text-muted-foreground">Projects</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="font-medium text-green-600">{campus.total_awards}</div>
-                                                <div className="text-muted-foreground">Awards</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="font-medium text-yellow-600">{campus.total_partners}</div>
-                                                <div className="text-muted-foreground">Partners</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Technology Transfers Pie Chart */}
+                                <div>
+                                    <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <PieChart>
+                                            <Pie
+                                                data={campusStats.filter(campus => campus.total_projects > 0)}
+                                                cx="50%"
+                                                cy="50%"
+                                                labelLine={false}
+                                                label={({ value }) =>
+                                                    `${value}`
+                                                }
+                                                outerRadius={80}
+                                                fill="#8884d8"
+                                                dataKey="total_projects"
+                                                nameKey="name"
+                                            >
+                                                {campusStats.filter(campus => campus.total_projects > 0).map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value, name) => [
+                                                    `${value} technology transfers`,
+                                                    name
+                                                ]}
+                                                labelFormatter={() => ''}
+                                            />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Recent Activities</CardTitle>
-                            <CardDescription>
-                                Latest submissions across all categories
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {recentActivities.map((activity) => (
-                                    <div key={`${activity.type}-${activity.id}`} className="flex items-start space-x-4 border-b pb-4 last:border-b-0">
-                                        <div className="flex-shrink-0 mt-1">
-                                            {getActivityIcon(activity.type)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h4 className="text-sm font-medium truncate">
-                                                    {activity.title}
-                                                </h4>
-                                                <Badge variant={getActivityBadgeVariant(activity.type)} className='capitalize'>
-                                                    {activity.type}
-                                                </Badge>
-                                            </div>
-                                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                                <span>{activity.campus} - {activity.college}</span>
-                                                <span>{formatDate(activity.created_at)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                {/* Awards Pie Chart */}
+                                <div>
+                                    <h3 className="text-sm font-medium text-center mb-4">Awards & Recognition</h3>
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <PieChart>
+                                            <Pie
+                                                data={campusStats.filter(campus => campus.total_awards > 0)}
+                                                cx="50%"
+                                                cy="50%"
+                                                labelLine={false}
+                                                label={({ value }) =>
+                                                    `${value}`
+                                                }
+                                                outerRadius={80}
+                                                fill="#8884d8"
+                                                dataKey="total_awards"
+                                                nameKey="name"
+                                            >
+                                                {campusStats.filter(campus => campus.total_awards > 0).map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value, name) => [
+                                                    `${value} Awards`,
+                                                    name
+                                                ]}
+                                                labelFormatter={() => ''}
+                                            />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+
+                                {/* Partnerships Pie Chart */}
+                                <div>
+                                    <h3 className="text-sm font-medium text-center mb-4">International Partners</h3>
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <PieChart>
+                                            <Pie
+                                                data={campusStats.filter(campus => campus.total_partners > 0)}
+                                                cx="50%"
+                                                cy="50%"
+                                                labelLine={false}
+                                                label={({ value }) =>
+                                                    `${value}`
+                                                }
+                                                outerRadius={80}
+                                                fill="#8884d8"
+                                                dataKey="total_partners"
+                                                nameKey="name"
+                                            >
+                                                {campusStats.filter(campus => campus.total_partners > 0).map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value, name) => [
+                                                    `${value} International Partnerships`,
+                                                    name
+                                                ]}
+                                                labelFormatter={() => ''}
+                                            />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

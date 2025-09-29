@@ -15,48 +15,102 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Overall statistics
+        // Get the year from request, default to current year
+        $year = $request->get('year', date('Y'));
+
+        // Get available years dynamically from database
+        $availableYears = collect();
+
+        // Get years from projects
+        $projectYears = Project::where('is_archived', false)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->pluck('year')
+            ->filter()
+            ->toArray();
+
+        // Get years from awards
+        $awardYears = Award::where('is_archived', false)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->pluck('year')
+            ->filter()
+            ->toArray();
+
+        // Get years from international partners
+        $partnerYears = InternationalPartner::where('is_archived', false)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->pluck('year')
+            ->filter()
+            ->toArray();
+
+        // Merge all years and get unique values
+        $allYears = array_unique(array_merge($projectYears, $awardYears, $partnerYears));
+
+        // Add current year if not present and sort descending
+        $allYears[] = (int)date('Y');
+        $availableYears = array_unique($allYears);
+        rsort($availableYears);
+
+        // Convert to strings for frontend
+        $availableYears = array_map('strval', $availableYears);
+
+        // Overall statistics for the selected year
         $overallStats = [
-            'total_users' => User::where('is_admin', false)->count(),
-            'total_projects' => Project::where('is_archived', false)->count(),
-            'total_awards' => Award::where('is_archived', false)->count(),
-            'total_international_partners' => InternationalPartner::where('is_archived', false)->count(),
+            'total_users' => User::where('is_admin', false)
+                ->whereYear('created_at', $year)
+                ->count(),
+            'total_projects' => Project::where('is_archived', false)
+                ->whereYear('created_at', $year)
+                ->count(),
+            'total_awards' => Award::where('is_archived', false)
+                ->whereYear('created_at', $year)
+                ->count(),
+            'total_international_partners' => InternationalPartner::where('is_archived', false)
+                ->whereYear('created_at', $year)
+                ->count(),
+            'total_campuses' => Campus::count(), // Structural data - not year-dependent
+            'total_colleges' => College::count(), // Structural data - not year-dependent
         ];
 
-        // Monthly statistics (current year)
+        // Monthly statistics for the selected year
         $monthlyStats = [];
         for ($i = 1; $i <= 12; $i++) {
             $monthlyStats[] = [
-                'month' => Carbon::create(date('Y'), $i, 1)->format('M'),
-                'projects' => Project::whereYear('created_at', date('Y'))
+                'month' => Carbon::create($year, $i, 1)->format('M'),
+                'projects' => Project::whereYear('created_at', $year)
                     ->whereMonth('created_at', $i)
                     ->where('is_archived', false)
                     ->count(),
-                'awards' => Award::whereYear('created_at', date('Y'))
+                'awards' => Award::whereYear('created_at', $year)
                     ->whereMonth('created_at', $i)
                     ->where('is_archived', false)
                     ->count(),
-                'partners' => InternationalPartner::whereYear('created_at', date('Y'))
+                'partners' => InternationalPartner::whereYear('created_at', $year)
                     ->whereMonth('created_at', $i)
                     ->where('is_archived', false)
                     ->count(),
             ];
         }
 
-        // Campus-wise statistics
+        // Campus-wise statistics for the selected year
         $campusStats = Campus::withCount(['campusColleges as total_colleges'])
-            ->with(['campusColleges' => function ($query) {
+            ->with(['campusColleges' => function ($query) use ($year) {
                 $query->withCount([
-                    'projects' => function ($query) {
-                        $query->where('is_archived', false);
+                    'projects' => function ($query) use ($year) {
+                        $query->where('is_archived', false)
+                            ->whereYear('created_at', $year);
                     },
-                    'awards' => function ($query) {
-                        $query->where('is_archived', false);
+                    'awards' => function ($query) use ($year) {
+                        $query->where('is_archived', false)
+                            ->whereYear('created_at', $year);
                     },
-                    'internationalPartners' => function ($query) {
-                        $query->where('is_archived', false);
+                    'internationalPartners' => function ($query) use ($year) {
+                        $query->where('is_archived', false)
+                            ->whereYear('created_at', $year);
                     }
                 ]);
             }])
@@ -69,7 +123,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $campus->id,
                     'name' => $campus->name,
-                    'code' => $campus->code,
                     'total_colleges' => $campus->total_colleges,
                     'total_projects' => $totalProjects,
                     'total_awards' => $totalAwards,
@@ -77,76 +130,12 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Recent activities
-        $recentActivities = collect();
-
-        // Recent projects
-        Project::with(['user', 'campusCollege.campus', 'campusCollege.college'])
-            ->where('is_archived', false)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->each(function ($project) use (&$recentActivities) {
-                $recentActivities->push([
-                    'id' => $project->id,
-                    'type' => 'project',
-                    'title' => $project->name,
-                    'description' => $project->description,
-                    'user' => $project->user->name,
-                    'campus' => $project->campusCollege?->campus?->name ?? 'N/A',
-                    'college' => $project->campusCollege?->college?->name ?? 'N/A',
-                    'created_at' => $project->created_at,
-                ]);
-            });
-
-        // Recent awards
-        Award::with(['user', 'campusCollege.campus', 'campusCollege.college'])
-            ->where('is_archived', false)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->each(function ($award) use (&$recentActivities) {
-                $recentActivities->push([
-                    'id' => $award->id,
-                    'type' => 'award',
-                    'title' => $award->award_name,
-                    'description' => $award->description,
-                    'user' => $award->user->name,
-                    'campus' => $award->campusCollege?->campus?->name ?? 'N/A',
-                    'college' => $award->campusCollege?->college?->name ?? 'N/A',
-                    'created_at' => $award->created_at,
-                    'date_received' => $award->date_received,
-                ]);
-            });
-
-        // Recent international partners
-        InternationalPartner::with(['user', 'campusCollege.campus', 'campusCollege.college'])
-            ->where('is_archived', false)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->each(function ($partner) use (&$recentActivities) {
-                $recentActivities->push([
-                    'id' => $partner->id,
-                    'type' => 'partner',
-                    'title' => $partner->agency_partner,
-                    'description' => $partner->activity_conducted,
-                    'user' => $partner->user->name,
-                    'campus' => $partner->campusCollege?->campus?->name ?? 'N/A',
-                    'college' => $partner->campusCollege?->college?->name ?? 'N/A',
-                    'created_at' => $partner->created_at,
-                    'location' => $partner->location,
-                ]);
-            });
-
-        // Sort recent activities by created_at and take top 10
-        $recentActivities = $recentActivities->sortByDesc('created_at')->take(10)->values();
-
         return Inertia::render('admin/dashboard', [
             'overallStats' => $overallStats,
             'monthlyStats' => $monthlyStats,
             'campusStats' => $campusStats,
-            'recentActivities' => $recentActivities,
+            'selectedYear' => $year,
+            'availableYears' => $availableYears,
         ]);
     }
 }

@@ -75,14 +75,6 @@ export default function InternationalPartners() {
                             </Link>
                         </Card>
                     ))}
-                    <Card className="hover:shadow-lg transition-shadow duration-200">
-                        <Link href={`/admin/campus/create`} className="flex flex-col items-center gap-3 h-full">
-                            <CardContent className="flex flex-col items-center justify-center h-full gap-2">
-                                <CirclePlus size={64} className="text-slate-700" />
-                                <span className='text-lg font-medium'>Add Campus</span>
-                            </CardContent>
-                        </Link>
-                    </Card>
                 </div>
             </div>
         </AppLayout>
