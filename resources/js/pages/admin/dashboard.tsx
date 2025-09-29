@@ -103,7 +103,7 @@ export default function Dashboard({
 
     const renderCustomBarLabel = ({ payload, x, y, width, height, value }: any) => {
         if (!value || value == 0) return <text />;
-        return <text x={x + width / 2} y={y} fill="#666" textAnchor="middle" dy={-6}>{`${value}`}</text>;
+        return <text x={x + width / 2} y={y} fill="#000" textAnchor="middle" dy={-6}>{`${value}`}</text>;
     };
 
     const renderStackedBarLabel = ({ x, y, width, height, value }: any) => {
@@ -182,8 +182,8 @@ export default function Dashboard({
                     </Card>
                 </div>
 
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-                    <Card>
+                <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+                    <Card className='col-span-2'>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5" />
@@ -195,15 +195,42 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="pl-2">
                             <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={monthlyStats}>
+                                <BarChart
+                                    data={monthlyStats}
+                                    margin={{ top: 20, bottom: 5 }}
+                                    barCategoryGap="20%"
+                                    barGap={4}
+                                >
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="month" />
-                                    <YAxis />
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{ fontSize: 12 }}
+                                        interval={0}
+                                    />
+                                    <YAxis allowDecimals={false} />
                                     <Tooltip />
                                     <Legend />
-                                    <Bar dataKey="awards" fill="#f59e0b" name="Awards" label={renderCustomBarLabel} />
-                                    <Bar dataKey="partners" fill="#10b981" name="Partnerships" label={renderCustomBarLabel} />
-                                    <Bar dataKey="projects" fill="#3b82f6" name="Technology Transfers" label={renderCustomBarLabel} />
+                                    <Bar
+                                        dataKey="awards"
+                                        fill="#f59e0b"
+                                        name="Awards"
+                                        label={renderCustomBarLabel}
+                                        radius={[2, 2, 0, 0]}
+                                    />
+                                    <Bar
+                                        dataKey="partners"
+                                        fill="#10b981"
+                                        name="Partnerships"
+                                        label={renderCustomBarLabel}
+                                        radius={[2, 2, 0, 0]}
+                                    />
+                                    <Bar
+                                        dataKey="projects"
+                                        fill="#3b82f6"
+                                        name="Technology Transfers"
+                                        label={renderCustomBarLabel}
+                                        radius={[2, 2, 0, 0]}
+                                    />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -245,9 +272,9 @@ export default function Dashboard({
                                 </div>
                             ) : (
                                 <>
-                                    <ResponsiveContainer width="100%" height={300}>
+                                    <ResponsiveContainer width="100%" height={280}>
                                         <BarChart data={campusPerformanceData}>
-                                            <XAxis dataKey="name" />
+                                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                                             <YAxis hide />
                                             <Tooltip
                                                 content={({ active, payload, label }) => {
@@ -302,7 +329,7 @@ export default function Dashboard({
                                 {/* Technology Transfers Pie Chart */}
                                 <div>
                                     <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
-                                    <ResponsiveContainer width="100%" height={250}>
+                                    <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
                                                 data={campusStats.filter(campus => campus.total_projects > 0)}
@@ -336,7 +363,7 @@ export default function Dashboard({
                                 {/* Awards Pie Chart */}
                                 <div>
                                     <h3 className="text-sm font-medium text-center mb-4">Awards & Recognition</h3>
-                                    <ResponsiveContainer width="100%" height={250}>
+                                    <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
                                                 data={campusStats.filter(campus => campus.total_awards > 0)}
@@ -370,7 +397,7 @@ export default function Dashboard({
                                 {/* Partnerships Pie Chart */}
                                 <div>
                                     <h3 className="text-sm font-medium text-center mb-4">International Partners</h3>
-                                    <ResponsiveContainer width="100%" height={250}>
+                                    <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
                                                 data={campusStats.filter(campus => campus.total_partners > 0)}
