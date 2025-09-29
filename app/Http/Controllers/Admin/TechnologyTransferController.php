@@ -50,6 +50,7 @@ class TechnologyTransferController extends Controller
             })
             ->where('is_archived', false)
             ->with(['campusCollege.campus', 'campusCollege.college', 'user'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('admin/technology-transfer/projects/index', [

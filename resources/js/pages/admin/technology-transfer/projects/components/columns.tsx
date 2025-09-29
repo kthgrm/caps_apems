@@ -149,14 +149,16 @@ export const columns: ColumnDef<Project>[] = [
         },
     },
     {
-        accessorKey: "user.name",
+        accessorKey: "description",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Submitted By" />
+            return <DataTableColumnHeader column={column} title="Description" />
         },
         cell: ({ row }) => {
-            const project = row.original
+            const description = row.getValue("description") as string
+            if (!description) return <span className="text-xs text-muted-foreground">Not set</span>
+
             return (
-                <span>{project.user.name}</span>
+                <span>{description}</span>
             )
         },
     },
@@ -171,20 +173,6 @@ export const columns: ColumnDef<Project>[] = [
 
             return (
                 <span>{agencyPartner}</span>
-            )
-        },
-    },
-    {
-        accessorKey: "budget",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Budget" />
-        },
-        cell: ({ row }) => {
-            const budget = row.getValue("budget") as number
-            if (!budget) return <span className="text-xs text-muted-foreground">Not set</span>
-
-            return (
-                <span>₱{budget.toLocaleString()}</span>
             )
         },
     },
@@ -222,6 +210,18 @@ export const columns: ColumnDef<Project>[] = [
                     <Users className="h-4 w-4 text-purple-600" />
                     <span>{leader}</span>
                 </div>
+            )
+        },
+    },
+    {
+        accessorKey: "user.name",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Submitted By" />
+        },
+        cell: ({ row }) => {
+            const project = row.original
+            return (
+                <span>{project.user.name}</span>
             )
         },
     },
