@@ -171,7 +171,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.audit-trail-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('audit-trail-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('audit-trail-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -198,11 +198,15 @@ class ReportController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('date_from')) {
-            $query->whereDate('start_date', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('end_date', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         // Search in project details
@@ -227,21 +231,6 @@ class ReportController extends Controller
         $campuses = Campus::orderBy('name')->get(['id', 'name']);
         $colleges = College::orderBy('name')->get(['id', 'name']);
 
-        // Calculate statistics
-        $totalProjects = Project::where('is_archived', false)->count();
-
-        $projectsByMonth = Project::where('is_archived', false)->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
-            ->orderByRaw('YEAR(created_at) DESC, MONTH(created_at) DESC')
-            ->limit(12)
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'period' => date('M Y', mktime(0, 0, 0, $item->month, 1, $item->year)),
-                    'count' => $item->count
-                ];
-            });
-
         return Inertia::render('admin/reports/projects/index', [
             'projects' => $projects,
             'campuses' => $campuses,
@@ -254,11 +243,7 @@ class ReportController extends Controller
                 'search',
                 'sort_by',
                 'sort_order'
-            ]),
-            'statistics' => [
-                'total_projects' => $totalProjects,
-                'projects_by_month' => $projectsByMonth,
-            ]
+            ])
         ]);
     }
 
@@ -288,11 +273,15 @@ class ReportController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('start_date', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('end_date', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         if ($request->filled('search')) {
@@ -340,7 +329,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.projects-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('projects-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('projects-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -367,11 +356,15 @@ class ReportController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('date_from')) {
-            $query->whereDate('date_received', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('date_received', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         // Search in award details
@@ -435,11 +428,15 @@ class ReportController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('date_received', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('date_received', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         if ($request->filled('search')) {
@@ -489,7 +486,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.awards-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('awards-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('awards-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -516,11 +513,15 @@ class ReportController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('date_from')) {
-            $query->whereDate('start_date', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('end_date', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         // Filter by participants range if provided
@@ -633,11 +634,15 @@ class ReportController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('start_date', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('end_date', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         if ($request->filled('participants_min')) {
@@ -698,7 +703,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.international-partners-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('international-partners-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('international-partners-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -934,7 +939,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.users-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('users-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('users-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -966,11 +971,15 @@ class ReportController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         // Search in modality details
@@ -1090,11 +1099,15 @@ class ReportController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            // Convert YYYY-MM to first day of month for created_at filtering
+            $fromDate = $request->date_from . '-01';
+            $query->where('created_at', '>=', $fromDate);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            // Convert YYYY-MM to last day of month for created_at filtering
+            $toDate = date('Y-m-t', strtotime($request->date_to . '-01')) . ' 23:59:59';
+            $query->where('created_at', '<=', $toDate);
         }
 
         if ($request->filled('search')) {
@@ -1152,7 +1165,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.modalities-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('modalities-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('modalities-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -1372,7 +1385,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.resolutions-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('resolutions-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('resolutions-report-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
@@ -1631,6 +1644,6 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.impact-assessments-pdf', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('impact-assessments-report-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->stream('impact-assessments-report-' . now()->format('Y-m-d') . '.pdf');
     }
 }

@@ -325,7 +325,7 @@ export default function Dashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 px-14">
                                 {/* Technology Transfers Pie Chart */}
                                 <div>
                                     <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
@@ -336,9 +336,12 @@ export default function Dashboard({
                                                 cx="50%"
                                                 cy="50%"
                                                 labelLine={false}
-                                                label={({ value }) =>
-                                                    `${value}`
-                                                }
+                                                label={({ value, payload }) => {
+                                                    if (!value || value === 0) return '';
+                                                    const total = campusStats.filter(campus => campus.total_projects > 0).reduce((sum, campus) => sum + campus.total_projects, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+                                                    return `${percentage}%`;
+                                                }}
                                                 outerRadius={80}
                                                 fill="#8884d8"
                                                 dataKey="total_projects"
@@ -370,9 +373,12 @@ export default function Dashboard({
                                                 cx="50%"
                                                 cy="50%"
                                                 labelLine={false}
-                                                label={({ value }) =>
-                                                    `${value}`
-                                                }
+                                                label={({ value, payload }) => {
+                                                    if (!value || value === 0) return '';
+                                                    const total = campusStats.filter(campus => campus.total_awards > 0).reduce((sum, campus) => sum + campus.total_awards, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+                                                    return `${percentage}%`;
+                                                }}
                                                 outerRadius={80}
                                                 fill="#8884d8"
                                                 dataKey="total_awards"
@@ -404,9 +410,12 @@ export default function Dashboard({
                                                 cx="50%"
                                                 cy="50%"
                                                 labelLine={false}
-                                                label={({ value }) =>
-                                                    `${value}`
-                                                }
+                                                label={({ value, payload }) => {
+                                                    if (!value || value === 0) return '';
+                                                    const total = campusStats.filter(campus => campus.total_partners > 0).reduce((sum, campus) => sum + campus.total_partners, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+                                                    return `${percentage}%`;
+                                                }}
                                                 outerRadius={80}
                                                 fill="#8884d8"
                                                 dataKey="total_partners"
@@ -418,7 +427,7 @@ export default function Dashboard({
                                             </Pie>
                                             <Tooltip
                                                 formatter={(value, name) => [
-                                                    `${value} International Partnerships`,
+                                                    `${value} International Partners`,
                                                     name
                                                 ]}
                                                 labelFormatter={() => ''}

@@ -236,16 +236,6 @@
                     <strong>To Date:</strong> {{ $filters['date_to'] }}
                 </div>
             @endif
-            @if (!empty($filters['budget_min']))
-                <div class="filter-item">
-                    <strong>Min Budget:</strong> ₱{{ number_format($filters['budget_min'], 2) }}
-                </div>
-            @endif
-            @if (!empty($filters['budget_max']))
-                <div class="filter-item">
-                    <strong>Max Budget:</strong> ₱{{ number_format($filters['budget_max'], 2) }}
-                </div>
-            @endif
             @if (!empty($filters['sort_by']))
                 <div class="filter-item">
                     <strong>Sort By:</strong> {{ ucfirst(str_replace('_', ' ', $filters['sort_by'])) }}
@@ -259,14 +249,13 @@
     <table>
         <thead>
             <tr>
-                <th width="20%">Project Details</th>
-                <th width="8%">Category</th>
+                <th width="20%">Project</th>
+                <th width="25%">Description</th>
+                <th width="10%">Category</th>
                 <th width="12%">Leader</th>
                 <th width="15%">College</th>
-                <th width="12%">Budget</th>
-                <th width="15%">Duration</th>
-                <th width="8%">Status</th>
-                <th width="10%">Created</th>
+                <th width="13%">Duration</th>
+                <th width="5%">Created</th>
             </tr>
         </thead>
         <tbody>
@@ -274,10 +263,14 @@
                 <tr>
                     <td>
                         <div class="project-name">{{ $project->name }}</div>
+                    </td>
+                    <td>
                         @if ($project->description)
                             <div class="project-description">
-                                {{ Str::limit($project->description, 120) }}
+                                {{ $project->description }}
                             </div>
+                        @else
+                            <div class="project-description" style="color: #999;">Unspecified</div>
                         @endif
                     </td>
                     <td>
@@ -289,7 +282,6 @@
                     </td>
                     <td>
                         <div style="font-weight: bold;">{{ $project->leader ?: 'Not assigned' }}</div>
-                        <div style="font-size: 8px; color: #666;">Project Leader</div>
                     </td>
                     <td class="institution">
                         <div class="campus">
@@ -298,13 +290,6 @@
                         <div class="college">
                             {{ $project->campusCollege?->college?->name ?: 'N/A' }}
                         </div>
-                    </td>
-                    <td class="budget">
-                        @if ($project->budget)
-                            {{ number_format($project->budget, 2) }}
-                        @else
-                            No budget specified
-                        @endif
                     </td>
                     <td>
                         @if ($project->start_date)
@@ -318,37 +303,13 @@
                         @endif
                     </td>
                     <td>
-                        @php
-                            $status = 'tbd';
-                            $statusText = 'Date TBD';
-
-                            if ($project->start_date && $project->end_date) {
-                                $now = now();
-                                $start = \Carbon\Carbon::parse($project->start_date);
-                                $end = \Carbon\Carbon::parse($project->end_date);
-
-                                if ($now->lt($start)) {
-                                    $status = 'upcoming';
-                                    $statusText = 'Upcoming';
-                                } elseif ($now->between($start, $end)) {
-                                    $status = 'ongoing';
-                                    $statusText = 'Ongoing';
-                                } else {
-                                    $status = 'completed';
-                                    $statusText = 'Completed';
-                                }
-                            }
-                        @endphp
-                        <span class="status-badge status-{{ $status }}">{{ $statusText }}</span>
-                    </td>
-                    <td>
                         <div>{{ \Carbon\Carbon::parse($project->created_at)->format('M d, Y') }}</div>
                         <div style="color: #666; font-size: 8px;">by {{ $project->user?->name ?: 'N/A' }}</div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 30px; color: #666;">
+                    <td colspan="7" style="text-align: center; padding: 30px; color: #666;">
                         No projects found matching the selected criteria.
                     </td>
                 </tr>

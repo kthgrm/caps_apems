@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Award, BookOpen, Building, Cpu, Folder, Handshake, LayoutGrid, Printer, School, User2 } from 'lucide-react';
+import { Award, BookOpen, Building, ComponentIcon, Cpu, Folder, Handshake, LayoutGrid, Printer, School, User2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const adminNavItems: NavItem[] = [
@@ -12,18 +12,21 @@ const adminNavItems: NavItem[] = [
         title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid,
     },
     {
-        title: 'Technology Transfer', href: '/admin/technology-transfer', icon: Cpu,
+        title: 'Modules', href: '#', icon: ComponentIcon, isGroup: true,
+        items: [
+            { title: 'Technology Transfer', href: '/admin/technology-transfer', icon: Cpu },
+            {
+                title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
+                subItems: [
+                    { title: 'Impact Assessment', href: '/admin/impact-assessment' },
+                    { title: 'Modalities', href: '/admin/modalities' },
+                ]
+            },
+            { title: 'International Partners', href: '/admin/international-partners', icon: Handshake },
+            { title: 'Awards & Recognition', href: '/admin/awards-recognition', icon: Award },
+            { title: 'Resolutions', href: '/admin/resolutions', icon: BookOpen }
+        ]
     },
-    {
-        title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
-        subItems: [
-            { title: 'Impact Assessment', href: '/admin/impact-assessment' },
-            { title: 'Modalities', href: '/admin/modalities' },
-        ],
-    },
-    { title: 'International Partners', href: '/admin/international-partners', icon: Handshake },
-    { title: 'Awards & Recognition', href: '/admin/awards-recognition', icon: Award },
-    { title: 'Resolutions', href: '/admin/resolutions', icon: BookOpen },
     { title: 'Campus', href: '/admin/campus', icon: School },
     { title: 'College', href: '/admin/college', icon: Building },
     { title: 'Users', href: '/admin/users', icon: User2 },

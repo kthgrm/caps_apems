@@ -135,24 +135,6 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
         });
     };
 
-    const getStatusBadge = (startDate: string | null | undefined, endDate: string | null | undefined) => {
-        if (!startDate || !endDate) {
-            return <Badge variant="secondary">Date TBD</Badge>;
-        }
-
-        const now = new Date();
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        if (now < start) {
-            return <Badge variant="secondary">Upcoming</Badge>;
-        } else if (now > end) {
-            return <Badge variant="outline">Completed</Badge>;
-        } else {
-            return <Badge variant="default">Ongoing</Badge>;
-        }
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Technology Transfers Report" />
@@ -231,23 +213,23 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {/* Date Range Range */}
+                            {/* Date Range */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">From Date</label>
+                                <label className="block text-sm font-medium mb-2">From</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_from}
                                     onChange={(e) => handleFilterChange('date_from', e.target.value)}
-                                    placeholder="From Date"
+                                    placeholder="From Month"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-2">To Date</label>
+                                <label className="block text-sm font-medium mb-2">To</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_to}
                                     onChange={(e) => handleFilterChange('date_to', e.target.value)}
-                                    placeholder="To Date"
+                                    placeholder="To Month"
                                 />
                             </div>
                         </div>
@@ -285,11 +267,11 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Project</TableHead>
+                                        <TableHead>Description</TableHead>
                                         <TableHead>Category</TableHead>
                                         <TableHead>Leader</TableHead>
                                         <TableHead>College</TableHead>
                                         <TableHead>Duration</TableHead>
-                                        <TableHead>Status</TableHead>
                                         <TableHead>Created</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -297,21 +279,18 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                     {projects.data.map((project) => (
                                         <TableRow key={project.id}>
                                             <TableCell className="font-medium">
-                                                <div>
-                                                    <p className="font-semibold">{project.name}</p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {project.description?.substring(0, 60)}...
-                                                    </p>
-                                                </div>
+                                                <p className="font-semibold">{project.name}</p>
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                <p className="text-sm text-muted-foreground">
+                                                    {project.description || 'Unspecified'}
+                                                </p>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="outline">{project.category || 'Unspecified'}</Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <div>
-                                                    <p className="font-medium">{project.leader || 'Not assigned'}</p>
-                                                    <p className="text-sm text-muted-foreground">Project Leader</p>
-                                                </div>
+                                                <p className="font-medium">{project.leader || 'Not assigned'}</p>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
@@ -332,9 +311,6 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                                     <p>{formatDate(project.start_date)}</p>
                                                     <p className="text-muted-foreground">to {formatDate(project.end_date)}</p>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {getStatusBadge(project.start_date, project.end_date)}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm">

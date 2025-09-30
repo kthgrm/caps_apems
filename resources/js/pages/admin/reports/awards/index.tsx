@@ -235,21 +235,21 @@ export default function AwardsReport({ awards, campuses, colleges, filters }: Pa
                             </div>
                             {/* Date Range */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">From Date</label>
+                                <label className="block text-sm font-medium mb-2">From</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_from}
                                     onChange={(e) => handleFilterChange('date_from', e.target.value)}
-                                    placeholder="From Date"
+                                    placeholder="From Month"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-2">To Date</label>
+                                <label className="block text-sm font-medium mb-2">To</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_to}
                                     onChange={(e) => handleFilterChange('date_to', e.target.value)}
-                                    placeholder="To Date"
+                                    placeholder="To Month"
                                 />
                             </div>
                         </div>

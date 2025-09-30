@@ -286,21 +286,23 @@ export default function ModalitiesReport({ modalities, campuses, colleges, filte
 
                             {/* Date From */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">From Date</label>
+                                <label className="block text-sm font-medium mb-2">From</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_from}
                                     onChange={(e) => handleFilterChange('date_from', e.target.value)}
+                                    placeholder="From Month"
                                 />
                             </div>
 
                             {/* Date To */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">To Date</label>
+                                <label className="block text-sm font-medium mb-2">To</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={localFilters.date_to}
                                     onChange={(e) => handleFilterChange('date_to', e.target.value)}
+                                    placeholder="To Month"
                                 />
                             </div>
                         </div>

@@ -22,6 +22,8 @@ export interface NavItem {
     isActive?: boolean;
     isDropdown?: boolean;
     subItems?: NavItem[];
+    items?: NavItem[];
+    isGroup?: boolean;
 }
 
 export interface SharedData {

@@ -274,21 +274,21 @@ const ImpactAssessmentsReportPage: React.FC<PageProps> = ({
 
                             {/* Date Range */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">From Date</label>
+                                <label className="block text-sm font-medium mb-2">From</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={dateFrom}
                                     onChange={(e) => setDateFrom(e.target.value)}
-                                    placeholder="From Date"
+                                    placeholder="From Month"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-2">To Date</label>
+                                <label className="block text-sm font-medium mb-2">To</label>
                                 <Input
-                                    type="date"
+                                    type="month"
                                     value={dateTo}
                                     onChange={(e) => setDateTo(e.target.value)}
-                                    placeholder="To Date"
+                                    placeholder="To Month"
                                 />
                             </div>
                         </div>

@@ -15,8 +15,6 @@ class Project extends Model
         'purpose',
         'start_date',
         'end_date',
-        'budget',
-        'funding_source',
         'tags',
         'leader',
         'deliverables',
