@@ -174,9 +174,9 @@ Route::group(['middleware' => 'auth'], function () {
                 ->name('audit-trail');
             Route::get('audit-trail/pdf', [ReportController::class, 'auditTrailPdf'])
                 ->name('audit-trail.pdf');
-            Route::get('projects', [ReportController::class, 'projects'])
+            Route::get('technology-transfers', [ReportController::class, 'projects'])
                 ->name('projects');
-            Route::get('projects/pdf', [ReportController::class, 'projectsPdf'])
+            Route::get('technology-transfers/pdf', [ReportController::class, 'projectsPdf'])
                 ->name('projects.pdf');
             Route::get('awards', [ReportController::class, 'awards'])
                 ->name('awards');

@@ -445,12 +445,12 @@ export default function ProjectEdit() {
                                 </CardContent>
                             </Card>
 
-                            {/* Timeline and Budget */}
+                            {/* Timeline */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <CalendarDays className="h-5 w-5" />
-                                        Timeline & Budget
+                                        Timeline
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -476,31 +476,6 @@ export default function ProjectEdit() {
                                                 className="mt-1"
                                             />
                                             {errors.end_date && <InputError message={errors.end_date} className="mt-1" />}
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light" htmlFor="budget">Budget *</Label>
-                                            <Input
-                                                id="budget"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={data.budget}
-                                                onChange={(e) => setData('budget', e.target.value)}
-                                                className="mt-1"
-                                                placeholder="0.00"
-                                            />
-                                            {errors.budget && <InputError message={errors.budget} className="mt-1" />}
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light" htmlFor="funding_source">Funding Source *</Label>
-                                            <Input
-                                                id="funding_source"
-                                                value={data.funding_source}
-                                                onChange={(e) => setData('funding_source', e.target.value)}
-                                                className="mt-1"
-                                                placeholder="Enter funding source"
-                                            />
-                                            {errors.funding_source && <InputError message={errors.funding_source} className="mt-1" />}
                                         </div>
                                     </div>
                                 </CardContent>

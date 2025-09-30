@@ -15,7 +15,7 @@ const adminNavItems: NavItem[] = [
         title: 'Technology Transfer', href: '/admin/technology-transfer', icon: Cpu,
     },
     {
-        title: 'Project Activities', href: '#', icon: Folder, isDropdown: true,
+        title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
         subItems: [
             { title: 'Impact Assessment', href: '/admin/impact-assessment' },
             { title: 'Modalities', href: '/admin/modalities' },
@@ -35,7 +35,7 @@ const adminNavItems: NavItem[] = [
             { title: 'Impact Assessments', href: '/admin/report/impact-assessments' },
             { title: 'International Partners', href: '/admin/report/international-partners' },
             { title: 'Modalities', href: '/admin/report/modalities' },
-            { title: 'Projects', href: '/admin/report/projects' },
+            { title: 'Technology Transfer', href: '/admin/report/technology-transfers' },
             { title: 'Resolutions', href: '/admin/report/resolutions' },
             { title: 'Users', href: '/admin/report/users' },
         ],

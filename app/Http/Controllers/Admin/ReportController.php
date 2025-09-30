@@ -205,15 +205,6 @@ class ReportController extends Controller
             $query->whereDate('end_date', '<=', $request->date_to);
         }
 
-        // Filter by budget range if provided
-        if ($request->filled('budget_min')) {
-            $query->where('budget', '>=', $request->budget_min);
-        }
-
-        if ($request->filled('budget_max')) {
-            $query->where('budget', '<=', $request->budget_max);
-        }
-
         // Search in project details
         if ($request->filled('search')) {
             $search = $request->search;
@@ -238,8 +229,6 @@ class ReportController extends Controller
 
         // Calculate statistics
         $totalProjects = Project::where('is_archived', false)->count();
-        $totalBudget = Project::where('is_archived', false)->sum('budget') ?? 0;
-        $avgBudget = Project::where('is_archived', false)->avg('budget') ?? 0;
 
         $projectsByMonth = Project::where('is_archived', false)->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
             ->groupByRaw('YEAR(created_at), MONTH(created_at)')
@@ -262,16 +251,12 @@ class ReportController extends Controller
                 'college_id',
                 'date_from',
                 'date_to',
-                'budget_min',
-                'budget_max',
                 'search',
                 'sort_by',
                 'sort_order'
             ]),
             'statistics' => [
                 'total_projects' => $totalProjects,
-                'total_budget' => $totalBudget,
-                'avg_budget' => $avgBudget,
                 'projects_by_month' => $projectsByMonth,
             ]
         ]);
@@ -310,14 +295,6 @@ class ReportController extends Controller
             $query->whereDate('end_date', '<=', $request->date_to);
         }
 
-        if ($request->filled('budget_min')) {
-            $query->where('budget', '>=', $request->budget_min);
-        }
-
-        if ($request->filled('budget_max')) {
-            $query->where('budget', '<=', $request->budget_max);
-        }
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -337,8 +314,6 @@ class ReportController extends Controller
 
         // Calculate statistics
         $totalProjects = $projects->count();
-        $totalBudget = $projects->sum('budget') ?? 0;
-        $avgBudget = $projects->avg('budget') ?? 0;
         $projectsByCategory = $projects->groupBy('category')->map->count();
 
         // Prepare data for PDF
@@ -346,8 +321,6 @@ class ReportController extends Controller
             'projects' => $projects,
             'statistics' => [
                 'total_projects' => $totalProjects,
-                'total_budget' => $totalBudget,
-                'avg_budget' => $avgBudget,
                 'projects_by_category' => $projectsByCategory,
             ],
             'filters' => $request->only([
@@ -356,8 +329,6 @@ class ReportController extends Controller
                 'category',
                 'date_from',
                 'date_to',
-                'budget_min',
-                'budget_max',
                 'search',
                 'sort_by',
                 'sort_order'

@@ -42,7 +42,6 @@ type ProjectForm = {
 
     start_date: string;
     end_date: string;
-    budget: string;
     funding_source: string;
 
     agency_partner: string;
@@ -85,7 +84,6 @@ export default function CreateProjectNew() {
         purpose: '',
         start_date: '',
         end_date: '',
-        budget: '',
         funding_source: '',
         tags: '',
         leader: '',
@@ -173,8 +171,8 @@ export default function CreateProjectNew() {
                                 <TabsTrigger value="project-details" className="text-sm">
                                     Project Details
                                 </TabsTrigger>
-                                <TabsTrigger value="timeline-budgeting" className="text-sm">
-                                    Timeline and Budgeting
+                                <TabsTrigger value="timeline" className="text-sm">
+                                    Timeline
                                 </TabsTrigger>
                                 <TabsTrigger value="partner-information" className="text-sm">
                                     Partner Information
@@ -298,13 +296,13 @@ export default function CreateProjectNew() {
                             </Card>
                         </TabsContent>
 
-                        {/* Timeline and Budgeting Tab */}
-                        <TabsContent value="timeline-budgeting" className="space-y-6">
+                        {/* Timeline Tab */}
+                        <TabsContent value="timeline" className="space-y-6">
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Calendar className="h-5 w-5" />
-                                        Timeline and Budgeting
+                                        Timeline
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -330,30 +328,6 @@ export default function CreateProjectNew() {
                                                 disabled={processing}
                                             />
                                             <InputError message={errors.end_date} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="budget">Budget</Label>
-                                            <Input
-                                                id="budget"
-                                                type="number"
-                                                value={data.budget}
-                                                onChange={(e) => setData('budget', e.target.value)}
-                                                placeholder="Enter budget"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.budget} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="funding_source">Funding Source</Label>
-                                            <Input
-                                                id="funding_source"
-                                                type="text"
-                                                value={data.funding_source}
-                                                onChange={(e) => setData('funding_source', e.target.value)}
-                                                placeholder="Enter funding source"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.funding_source} />
                                         </div>
                                     </div>
                                 </CardContent>

@@ -265,12 +265,12 @@ export default function ProjectShow() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Timeline and Budget */}
+                        {/* Timeline */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <CalendarDays className="h-5 w-5" />
-                                    Timeline & Budget
+                                    Timeline
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -290,18 +290,6 @@ export default function ProjectShow() {
                                             readOnly
                                             className="mt-1"
                                         />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Budget</Label>
-                                        <Input
-                                            value={project.budget ? `₱${Number(project.budget).toLocaleString()}` : 'Not specified'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Funding Source</Label>
-                                        <Input value={project.funding_source || 'Not specified'} readOnly className="mt-1" />
                                     </div>
                                 </div>
                             </CardContent>

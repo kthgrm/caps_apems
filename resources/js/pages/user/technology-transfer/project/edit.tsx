@@ -37,8 +37,6 @@ export default function ProjectEdit() {
         purpose: project.purpose || '',
         start_date: project.start_date || '',
         end_date: project.end_date || '',
-        budget: project.budget?.toString() || '',
-        funding_source: project.funding_source || '',
         tags: project.tags || '',
         leader: project.leader || '',
         deliverables: project.deliverables || '',
@@ -61,7 +59,6 @@ export default function ProjectEdit() {
     // Transform data before submission
     transform((data) => ({
         ...data,
-        budget: parseFloat(data.budget) || 0,
         is_assessment_based: Boolean(data.is_assessment_based),
         reporting_frequency: parseInt(data.reporting_frequency) || 0,
     }));
@@ -370,12 +367,12 @@ export default function ProjectEdit() {
 
                         {/* Sidebar */}
                         <div className="space-y-6">
-                            {/* Timeline and Budget */}
+                            {/* Timeline */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <CalendarDays className="h-5 w-5" />
-                                        Timeline & Budget
+                                        Timeline
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -401,28 +398,6 @@ export default function ProjectEdit() {
                                                 className="mt-1"
                                             />
                                             {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light" htmlFor='budget'>Budget</Label>
-                                            <Input
-                                                id='budget'
-                                                value={data.budget}
-                                                type="number"
-                                                className="mt-1"
-                                                onChange={(e) => setData('budget', e.target.value)}
-                                            />
-                                            {errors.budget && <p className="text-red-500 text-sm mt-1">{errors.budget}</p>}
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light" htmlFor='funding_source'>Funding Source</Label>
-                                            <Input
-                                                id='funding_source'
-                                                type='text'
-                                                value={data.funding_source}
-                                                onChange={(e) => setData('funding_source', e.target.value)}
-                                                className="mt-1"
-                                            />
-                                            {errors.funding_source && <p className="text-red-500 text-sm mt-1">{errors.funding_source}</p>}
                                         </div>
                                     </div>
                                 </CardContent>

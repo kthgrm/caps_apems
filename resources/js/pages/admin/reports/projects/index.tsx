@@ -36,8 +36,6 @@ interface PaginationData {
 
 interface Statistics {
     total_projects: number;
-    total_budget: number;
-    avg_budget: number;
     projects_by_month: Array<{ period: string; count: number }>;
 }
 
@@ -50,8 +48,6 @@ interface PageProps {
         college_id?: string;
         date_from?: string;
         date_to?: string;
-        budget_min?: string;
-        budget_max?: string;
         search?: string;
         sort_by?: string;
         sort_order?: string;
@@ -66,11 +62,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
     {
         title: 'Reports',
-        href: '/admin/report/projects',
+        href: '/admin/report/technology-transfers',
     },
     {
-        title: 'Projects Report',
-        href: '/admin/report/projects',
+        title: 'Technology Transfers Report',
+        href: '/admin/report/technology-transfers',
     },
 ];
 
@@ -96,7 +92,7 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
         const cleanFilters = Object.fromEntries(
             Object.entries(localFilters).filter(([_, value]) => value !== '' && value !== 'all')
         );
-        router.get('/admin/report/projects', cleanFilters, {
+        router.get('/admin/report/technology-transfers', cleanFilters, {
             preserveState: true,
             preserveScroll: true,
         });
@@ -112,7 +108,7 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
             sort_by: 'created_at',
             sort_order: 'desc',
         });
-        router.get('/admin/report/projects');
+        router.get('/admin/report/technology-transfers');
     };
 
     const generatePDF = () => {
@@ -126,16 +122,8 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
         });
 
         // Open PDF in a new window/tab
-        const url = `/admin/report/projects/pdf?${params.toString()}`;
+        const url = `/admin/report/technology-transfers/pdf?${params.toString()}`;
         window.open(url, '_blank');
-    };
-
-    const formatCurrency = (amount: number | null | undefined) => {
-        if (!amount) return 'No budget specified';
-        return new Intl.NumberFormat('en-PH', {
-            style: 'currency',
-            currency: 'PHP',
-        }).format(amount);
     };
 
     const formatDate = (dateString: string | null | undefined) => {
@@ -167,13 +155,13 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Projects Report" />
+            <Head title="Technology Transfers Report" />
 
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-medium">Projects Report</h1>
+                        <h1 className="text-2xl font-medium">Technology Transfers Report</h1>
                         <p className="text-muted-foreground">
                             Comprehensive overview of all technology transfer projects
                         </p>
@@ -300,7 +288,6 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                         <TableHead>Category</TableHead>
                                         <TableHead>Leader</TableHead>
                                         <TableHead>College</TableHead>
-                                        <TableHead>Budget</TableHead>
                                         <TableHead>Duration</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Created</TableHead>
@@ -339,9 +326,6 @@ export default function ProjectsReport({ projects, campuses, colleges, filters }
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatCurrency(project.budget)}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm">

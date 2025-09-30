@@ -200,20 +200,6 @@ export const columns: ColumnDef<Project>[] = [
         },
     },
     {
-        accessorKey: "budget",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Budget" />
-        },
-        cell: ({ row }) => {
-            const budget = row.getValue("budget") as number
-            if (!budget) return <span className="text-xs text-muted-foreground">Not set</span>
-
-            return (
-                <span className="font-medium">₱{budget.toLocaleString()}</span>
-            )
-        },
-    },
-    {
         id: "actions",
         cell: ({ row }) => {
             const project = row.original

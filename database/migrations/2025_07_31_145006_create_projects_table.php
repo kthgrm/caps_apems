@@ -24,8 +24,6 @@ return new class extends Migration
             $table->string('purpose')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->decimal('budget', 15, 2)->nullable();
-            $table->string('funding_source')->nullable();
             $table->string('tags')->nullable();
             $table->string('leader')->nullable();
             $table->string('deliverables')->nullable();
