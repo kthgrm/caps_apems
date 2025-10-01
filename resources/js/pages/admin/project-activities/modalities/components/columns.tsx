@@ -313,6 +313,11 @@ export const columns: ColumnDef<Modalities>[] = [
                                 View details
                             </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/modalities/${modality.id}/edit`} className="font-light">
+                                Edit Modality
+                            </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <ArchiveModalityButton modality={modality} />
                     </DropdownMenuContent>
