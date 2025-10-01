@@ -260,7 +260,7 @@ export const columns: ColumnDef<InternationalPartner>[] = [
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href='#' className="font-light flex items-center gap-2">
+                            <Link href={`/user/international-partners/${partnership.id}/edit`} className="font-light flex items-center gap-2">
                                 <Edit className="h-4 w-4" />
                                 Edit partnership
                             </Link>

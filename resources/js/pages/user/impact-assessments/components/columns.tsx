@@ -227,7 +227,7 @@ export const columns: ColumnDef<ImpactAssessment>[] = [
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href='#' className="font-light flex items-center gap-2">
+                            <Link href={`/user/impact-assessments/${assessment.id}/edit`} className="font-light flex items-center gap-2">
                                 <Edit className="h-4 w-4" />
                                 Edit assessment
                             </Link>
