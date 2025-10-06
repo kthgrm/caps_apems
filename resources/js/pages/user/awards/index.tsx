@@ -93,7 +93,7 @@ export default function AwardList() {
                         <DataTable
                             columns={columns}
                             data={awards}
-                            searchKey="agency_partner"
+                            searchKey="award_name"
                             searchPlaceholder="Search awards..."
                             actionComponent={<AwardsActions />}
                         />
