@@ -161,16 +161,16 @@ export const columns: ColumnDef<Award>[] = [
         },
     },
     {
-        accessorKey: "level",
+        accessorKey: "awarding_body",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Level" />
+            return <DataTableColumnHeader column={column} title="Awarding Body" />
         },
         cell: ({ row }: any) => {
-            const level = row.getValue("level") as string;
-            return level ? (
-                <span className="line-clamp-2">{level.charAt(0).toUpperCase() + level.slice(1)}</span>
+            const awardingBody = row.getValue("awarding_body") as string;
+            return awardingBody ? (
+                <span className="line-clamp-2">{awardingBody.charAt(0).toUpperCase() + awardingBody.slice(1)}</span>
             ) : (
-                <span className="text-muted-foreground text-sm">No level specified</span>
+                <span className="text-muted-foreground text-sm">No awarding body specified</span>
             );
         },
     },

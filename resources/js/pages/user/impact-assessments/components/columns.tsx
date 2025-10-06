@@ -129,7 +129,8 @@ const ArchiveAssessmentButton = ({ assessment }: { assessment: ImpactAssessment 
 
 export const columns: ColumnDef<ImpactAssessment>[] = [
     {
-        accessorKey: "id",
+        accessorFn: (row) => row.project?.name,
+        id: "project_name",
         header: ({ column }) => {
             return <DataTableColumnHeader column={column} title="Project Assessment" />
         },

@@ -130,9 +130,10 @@ const ArchiveModalityButton = ({ modality }: { modality: Modalities }) => {
 
 export const columns: ColumnDef<Modalities>[] = [
     {
-        accessorKey: "id",
+        accessorFn: (row) => row.project?.name,
+        id: "project_name",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Project Modality" />
+            return <DataTableColumnHeader column={column} title="Project" />
         },
         cell: ({ row }: any) => {
             const modality = row.original;

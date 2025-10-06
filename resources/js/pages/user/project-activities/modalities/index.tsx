@@ -93,8 +93,8 @@ export default function ModalitiesList() {
                         <DataTable
                             columns={columns}
                             data={modalities}
-                            searchKey="project"
-                            searchPlaceholder="Search projects..."
+                            searchKey="project_name"
+                            searchPlaceholder="Search by project name..."
                             actionComponent={<ModalitiesActions />}
                         />
                     </CardContent>

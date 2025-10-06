@@ -93,8 +93,8 @@ export default function ImpactAssessmentList() {
                         <DataTable
                             columns={columns}
                             data={assessments}
-                            searchKey="project"
-                            searchPlaceholder="Search projects..."
+                            searchKey="project_name"
+                            searchPlaceholder="Search by project name..."
                             actionComponent={<AssessmentsActions />}
                         />
                     </CardContent>
