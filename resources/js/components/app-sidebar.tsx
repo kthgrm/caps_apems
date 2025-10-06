@@ -57,7 +57,7 @@ const userNavItems: NavItem[] = [
         icon: Cpu,
     },
     {
-        title: 'Project Activities', href: '#', icon: Folder, isDropdown: true,
+        title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
         subItems: [
             { title: 'Impact Assessment', href: '/user/impact-assessments' },
             { title: 'Modalities', href: '/user/modalities' },
