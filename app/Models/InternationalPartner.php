@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Models\CampusCollege;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class InternationalPartner extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'campus_college_id',

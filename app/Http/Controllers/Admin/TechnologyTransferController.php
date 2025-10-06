@@ -96,8 +96,6 @@ class TechnologyTransferController extends Controller
             'purpose' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'budget' => 'required|numeric|min:0',
-            'funding_source' => 'required|string|max:255',
             'tags' => 'required|string|max:255',
             'leader' => 'required|string|max:255',
             'deliverables' => 'required|string|max:255',
@@ -174,6 +172,9 @@ class TechnologyTransferController extends Controller
             description: Auth::user()->name . " (Admin) archived Project #{$project->id}: {$project->name}"
         );
 
-        return redirect()->route('admin.technology-transfer.projects')->with('success', 'Project archived successfully.');
+        return redirect()->route('admin.technology-transfer.projects', [
+            'campus' => $project->campusCollege->campus_id,
+            'college' => $project->campusCollege->college_id
+        ])->with('success', 'Project archived successfully.');
     }
 }

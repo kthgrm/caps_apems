@@ -15,6 +15,7 @@ use App\Models\Modalities;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -22,6 +23,24 @@ use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    /**
+     * Get database-agnostic year extraction SQL
+     */
+    private function getYearSql($column = 'created_at'): string
+    {
+        $driver = DB::getDriverName();
+        return $driver === 'sqlite' ? "strftime('%Y', {$column})" : "YEAR({$column})";
+    }
+
+    /**
+     * Get database-agnostic month extraction SQL
+     */
+    private function getMonthSql($column = 'created_at'): string
+    {
+        $driver = DB::getDriverName();
+        return $driver === 'sqlite' ? "strftime('%m', {$column})" : "MONTH({$column})";
+    }
+
     /**
      * Display the audit trail page.
      */
@@ -561,9 +580,9 @@ class ReportController extends Controller
         $avgParticipants = InternationalPartner::where('is_archived', false)->avg('number_of_participants') ?? 0;
 
         $partnersByMonth = InternationalPartner::where('is_archived', false)
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
-            ->orderByRaw('YEAR(created_at) DESC, MONTH(created_at) DESC')
+            ->selectRaw("{$this->getYearSql()} as year, {$this->getMonthSql()} as month, COUNT(*) as count")
+            ->groupByRaw("{$this->getYearSql()}, {$this->getMonthSql()}")
+            ->orderByRaw("{$this->getYearSql()} DESC, {$this->getMonthSql()} DESC")
             ->limit(12)
             ->get()
             ->map(function ($item) {
@@ -780,9 +799,9 @@ class ReportController extends Controller
         $activeUsers = User::where('is_active', true)->count();
         $inactiveUsers = User::where('is_active', false)->count();
 
-        $usersByMonth = User::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
-            ->orderByRaw('YEAR(created_at) DESC, MONTH(created_at) DESC')
+        $usersByMonth = User::selectRaw("{$this->getYearSql()} as year, {$this->getMonthSql()} as month, COUNT(*) as count")
+            ->groupByRaw("{$this->getYearSql()}, {$this->getMonthSql()}")
+            ->orderByRaw("{$this->getYearSql()} DESC, {$this->getMonthSql()} DESC")
             ->limit(12)
             ->get()
             ->map(function ($item) {
@@ -1020,9 +1039,9 @@ class ReportController extends Controller
             ->toArray();
 
         $modalitiesByMonth = Modalities::where('is_archived', false)
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
-            ->orderByRaw('YEAR(created_at) DESC, MONTH(created_at) DESC')
+            ->selectRaw("{$this->getYearSql()} as year, {$this->getMonthSql()} as month, COUNT(*) as count")
+            ->groupByRaw("{$this->getYearSql()}, {$this->getMonthSql()}")
+            ->orderByRaw("{$this->getYearSql()} DESC, {$this->getMonthSql()} DESC")
             ->limit(12)
             ->get()
             ->map(function ($item) {
@@ -1242,8 +1261,8 @@ class ReportController extends Controller
             ->whereDate('expiration', '<=', $currentDate->copy()->addDays(30))
             ->count();
 
-        $resolutionsByYear = Resolution::selectRaw('YEAR(year_of_effectivity) as year, COUNT(*) as count')
-            ->groupByRaw('YEAR(year_of_effectivity)')
+        $resolutionsByYear = Resolution::selectRaw("{$this->getYearSql('year_of_effectivity')} as year, COUNT(*) as count")
+            ->groupByRaw("{$this->getYearSql('year_of_effectivity')}")
             ->orderByDesc('year')
             ->limit(10)
             ->get()
@@ -1254,9 +1273,9 @@ class ReportController extends Controller
                 ];
             });
 
-        $resolutionsByMonth = Resolution::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupByRaw('YEAR(created_at), MONTH(created_at)')
-            ->orderByRaw('YEAR(created_at) DESC, MONTH(created_at) DESC')
+        $resolutionsByMonth = Resolution::selectRaw("{$this->getYearSql()} as year, {$this->getMonthSql()} as month, COUNT(*) as count")
+            ->groupByRaw("{$this->getYearSql()}, {$this->getMonthSql()}")
+            ->orderByRaw("{$this->getYearSql()} DESC, {$this->getMonthSql()} DESC")
             ->limit(12)
             ->get()
             ->map(function ($item) {

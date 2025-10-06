@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('period')->nullable();
             $table->string('partner_agency')->nullable();
             $table->string('hosted_by')->nullable();
+            $table->boolean('is_archived')->default(false);
             $table->timestamps();
         });
     }

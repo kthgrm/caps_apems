@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('contact_person');
             $table->string('contact_number_email');
             $table->string('partner_agency_organization');
+            $table->boolean('is_archived')->default(false);
             $table->timestamps();
         });
     }

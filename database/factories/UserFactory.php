@@ -29,7 +29,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'is_admin' => false,
-            'campus_college_id' => 1, // Default to first campus college
+            'is_active' => true,
+            'campus_college_id' => null, // Will be set explicitly in tests
             'remember_token' => Str::random(10),
         ];
     }

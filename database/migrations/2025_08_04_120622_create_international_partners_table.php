@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('narrative');
 
             $table->string('attachment')->nullable();
+            $table->boolean('is_archived')->default(false);
 
             $table->timestamps();
         });

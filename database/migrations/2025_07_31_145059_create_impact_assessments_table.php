@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('num_indirect_beneficiary');
             $table->string('geographic_coverage');
 
+            $table->boolean('is_archived')->default(false);
+
             $table->timestamps();
         });
     }

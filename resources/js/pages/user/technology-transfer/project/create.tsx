@@ -61,8 +61,6 @@ type ProjectForm = {
     attachment: File | null;
     attachment_link: string;
 
-    remarks: string;
-
     created_at: string;
     updated_at: string;
 };
@@ -105,8 +103,6 @@ export default function CreateProjectNew() {
 
         attachment: null,
         attachment_link: '',
-
-        remarks: '',
 
         created_at: new Date().toISOString().split('T')[0],
         updated_at: new Date().toISOString().split('T')[0],
@@ -564,22 +560,6 @@ export default function CreateProjectNew() {
                             </Card>
                         </TabsContent>
                     </Tabs>
-
-                    {/* Footer Section */}
-                    <div className="mt-6 space-y-2">
-                        <Label htmlFor="remarks" className="text-base font-medium">
-                            Remarks
-                        </Label>
-                        <Textarea
-                            id="remarks"
-                            value={data.remarks}
-                            onChange={(e) => setData('remarks', e.target.value)}
-                            placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean turpis eros, rhoncus non ex vitae, euismod iaculis est. Curabitur in."
-                            rows={4}
-                            disabled={processing}
-                        />
-                        <InputError message={errors.remarks} />
-                    </div>
 
                     {/* Submit Button */}
                     <div className="flex justify-end">

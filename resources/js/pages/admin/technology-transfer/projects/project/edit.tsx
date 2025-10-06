@@ -56,8 +56,6 @@ export default function ProjectEdit() {
         purpose: project.purpose || '',
         start_date: project.start_date || '',
         end_date: project.end_date || '',
-        budget: project.budget?.toString() || '',
-        funding_source: project.funding_source || '',
         tags: project.tags || '',
         leader: project.leader || '',
         deliverables: project.deliverables || '',
@@ -87,7 +85,6 @@ export default function ProjectEdit() {
     // Transform data before sending
     transform((data) => ({
         ...data,
-        budget: data.budget ? parseFloat(data.budget) : null,
         reporting_frequency: data.reporting_frequency ? parseInt(data.reporting_frequency) : null,
     }));
 

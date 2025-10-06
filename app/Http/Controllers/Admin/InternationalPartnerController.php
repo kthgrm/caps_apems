@@ -154,6 +154,6 @@ class InternationalPartnerController extends Controller
             description: Auth::user()->name . " (Admin) archived International Partnership #{$partnership->id}: {$partnership->agency_partner}"
         );
 
-        return redirect()->route('admin.international-partners.partnerships')->with('success', 'Partnership archived successfully.');
+        return redirect()->back()->with('success', 'Partnership archived successfully.');
     }
 }

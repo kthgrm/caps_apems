@@ -94,7 +94,7 @@ export default function AwardList() {
                             columns={columns}
                             data={awards}
                             searchKey="agency_partner"
-                            searchPlaceholder="Search partnerships..."
+                            searchPlaceholder="Search awards..."
                             actionComponent={<AwardsActions />}
                         />
                     </CardContent>

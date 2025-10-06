@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Award extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'award_name',
         'date_received',
         'description',
+        'level',
         'event_details',
         'awarding_body',
         'location',
