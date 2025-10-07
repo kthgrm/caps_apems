@@ -74,11 +74,11 @@ export default function ProjectEdit() {
         },
         {
             title: project.name,
-            href: `/user/projects/${project.id}`,
+            href: `/user/technology-transfer/project/${project.id}`,
         },
         {
             title: 'Edit',
-            href: `/user/projects/${project.id}/edit`,
+            href: `/user/technology-transfer/project/${project.id}/edit`,
         },
     ];
 

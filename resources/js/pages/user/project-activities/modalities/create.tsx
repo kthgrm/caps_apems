@@ -19,7 +19,7 @@ import type { BreadcrumbItem, Project, User } from '@/types';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Project Activities',
-        href: '/user/project-activities',
+        href: '/user/modalities',
     },
     {
         title: 'Modalities',

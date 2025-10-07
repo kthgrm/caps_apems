@@ -25,19 +25,19 @@ export default function ModalityEdit() {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Project Activities',
-            href: '/user/project-activities',
+            href: '/user/modalities',
         },
         {
             title: 'Modalities',
-            href: '/user/project-activities/modalities',
+            href: '/user/modalities',
         },
         {
             title: modality.project.name,
-            href: `/user/project-activities/modalities/${modality.id}`,
+            href: `/user/modalities/${modality.id}`,
         },
         {
             title: 'Edit Modality',
-            href: `/user/project-activities/modalities/${modality.id}/edit`,
+            href: `/user/modalities/${modality.id}/edit`,
         }
     ];
 

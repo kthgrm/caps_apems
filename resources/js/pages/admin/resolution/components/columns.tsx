@@ -227,12 +227,13 @@ export const columns: ColumnDef<Resolution>[] = [
             return <DataTableColumnHeader column={column} title="Contact Person" />
         },
         cell: ({ row }) => {
-            const contactPerson = row.getValue("contact_person") as string
-            const contactInfo = row.getValue("contact_number_email") as string
+            const resolution = row.original
+            const contactPerson = resolution.contact_person
+            const contactInfo = resolution.contact_number_email
 
             return (
                 <div className="flex flex-col">
-                    <span className="font-medium">{contactPerson}</span>
+                    <span className="font-medium">{contactPerson || 'N/A'}</span>
                     {contactInfo && (
                         <span className="text-xs text-muted-foreground">{contactInfo}</span>
                     )}

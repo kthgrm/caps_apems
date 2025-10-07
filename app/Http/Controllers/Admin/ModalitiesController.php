@@ -17,13 +17,21 @@ class ModalitiesController extends Controller
 {
     public function campuses()
     {
-        $campuses = Campus::withCount([
-            'projects' => function ($query) {
-                $query->whereHas('modalities', function ($modalityQuery) {
-                    $modalityQuery->where('is_archived', false);
+        $campuses = Campus::with(['projects' => function ($query) {
+            $query->where('is_archived', false);
+        }])->get();
+
+        // Add modalities count for each campus
+        $campuses = $campuses->map(function ($campus) {
+            $modalitiesCount = Modalities::whereHas('project', function ($query) use ($campus) {
+                $query->whereHas('campusCollege', function ($subQuery) use ($campus) {
+                    $subQuery->where('campus_id', $campus->id);
                 })->where('is_archived', false);
-            }
-        ])->get();
+            })->where('is_archived', false)->count();
+
+            $campus->modalities_count = $modalitiesCount;
+            return $campus;
+        });
 
         return Inertia::render('admin/project-activities/modalities/campus', [
             'campuses' => $campuses,
