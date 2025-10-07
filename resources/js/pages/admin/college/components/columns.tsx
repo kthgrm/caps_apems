@@ -148,6 +148,7 @@ const DeleteCollegeButton = ({ college }: { college: CampusCollege }) => {
 export const columns: ColumnDef<CampusCollege>[] = [
     {
         accessorKey: "college.name",
+        id: "name", // Add an id for search functionality
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="College Name" />
         ),
@@ -169,6 +170,11 @@ export const columns: ColumnDef<CampusCollege>[] = [
                     </div>
                 </div>
             );
+        },
+        filterFn: (row, id, value) => {
+            const college = row.original;
+            const searchableText = `${college.college.name} ${college.college.code}`.toLowerCase();
+            return searchableText.includes(value.toLowerCase());
         },
     },
     {
