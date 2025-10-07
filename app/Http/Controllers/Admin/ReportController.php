@@ -16,6 +16,7 @@ use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -155,8 +156,8 @@ class ReportController extends Controller
             });
         }
 
-        // Get all audit logs without pagination for PDF
-        $auditLogs = $query->get();
+        // Get audit logs with a reasonable limit for PDF generation
+        $auditLogs = $query->limit(1000)->get();
 
         // Calculate statistics
         $totalLogs = $auditLogs->count();
@@ -187,10 +188,15 @@ class ReportController extends Controller
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
-        $pdf = Pdf::loadView('reports.audit-trail-pdf', $data);
-        $pdf->setPaper('A4', 'portrait');
+        try {
+            $pdf = Pdf::loadView('reports.audit-trail-pdf', $data);
+            $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->stream('audit-trail-report-' . now()->format('Y-m-d') . '.pdf');
+            return $pdf->stream('audit-trail-report-' . now()->format('Y-m-d') . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Audit Trail PDF Generation Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
