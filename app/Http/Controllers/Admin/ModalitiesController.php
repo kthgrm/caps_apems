@@ -17,17 +17,15 @@ class ModalitiesController extends Controller
 {
     public function campuses()
     {
-        $campuses = Campus::with(['projects' => function ($query) {
-            $query->where('is_archived', false);
-        }])->get();
+        $campuses = Campus::all();
 
         // Add modalities count for each campus
         $campuses = $campuses->map(function ($campus) {
-            $modalitiesCount = Modalities::whereHas('project', function ($query) use ($campus) {
-                $query->whereHas('campusCollege', function ($subQuery) use ($campus) {
-                    $subQuery->where('campus_id', $campus->id);
-                })->where('is_archived', false);
-            })->where('is_archived', false)->count();
+            $modalitiesCount = Modalities::join('projects', 'modalities.project_id', '=', 'projects.id')
+                ->join('campus_college', 'projects.campus_college_id', '=', 'campus_college.id')
+                ->where('campus_college.campus_id', $campus->id)
+                ->where('modalities.is_archived', false)
+                ->count();
 
             $campus->modalities_count = $modalitiesCount;
             return $campus;
@@ -40,17 +38,24 @@ class ModalitiesController extends Controller
 
     public function colleges(Campus $campus)
     {
+        $colleges = $campus->colleges()->get();
+
+        // Add modalities count for each college within this campus
+        $colleges = $colleges->map(function ($college) use ($campus) {
+            $modalitiesCount = Modalities::join('projects', 'modalities.project_id', '=', 'projects.id')
+                ->join('campus_college', 'projects.campus_college_id', '=', 'campus_college.id')
+                ->where('campus_college.campus_id', $campus->id)
+                ->where('campus_college.college_id', $college->id)
+                ->where('modalities.is_archived', false)
+                ->count();
+
+            $college->modalities_count = $modalitiesCount;
+            return $college;
+        });
+
         return Inertia::render('admin/project-activities/modalities/college', [
             'campus' => $campus,
-            'colleges' => $campus->colleges()->withCount([
-                'projects' => function ($query) use ($campus) {
-                    $query->whereHas('campusCollege', function ($subQuery) use ($campus) {
-                        $subQuery->where('campus_id', $campus->id);
-                    })->whereHas('modalities', function ($modalityQuery) {
-                        $modalityQuery->where('is_archived', false);
-                    })->where('is_archived', false);
-                }
-            ])->get(),
+            'colleges' => $colleges,
         ]);
     }
 

@@ -147,7 +147,7 @@ const DeleteCollegeButton = ({ college }: { college: CampusCollege }) => {
 
 export const columns: ColumnDef<CampusCollege>[] = [
     {
-        accessorKey: "name",
+        accessorKey: "college.name",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="College Name" />
         ),

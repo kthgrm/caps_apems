@@ -17,13 +17,19 @@ class ImpactAssessmentController extends Controller
 {
     public function campuses()
     {
-        $campuses = Campus::withCount([
-            'projects' => function ($query) {
-                $query->whereHas('impactAssessment', function ($assessmentQuery) {
-                    $assessmentQuery->where('is_archived', false);
-                });
-            }
-        ])->get();
+        $campuses = Campus::all();
+
+        // Add impact assessments count for each campus
+        $campuses = $campuses->map(function ($campus) {
+            $assessmentsCount = ImpactAssessment::join('projects', 'impact_assessments.project_id', '=', 'projects.id')
+                ->join('campus_college', 'projects.campus_college_id', '=', 'campus_college.id')
+                ->where('campus_college.campus_id', $campus->id)
+                ->where('impact_assessments.is_archived', false)
+                ->count();
+
+            $campus->impact_assessments_count = $assessmentsCount;
+            return $campus;
+        });
 
         return Inertia::render('admin/project-activities/impact-assessment/campus', [
             'campuses' => $campuses,
@@ -32,17 +38,24 @@ class ImpactAssessmentController extends Controller
 
     public function colleges(Campus $campus)
     {
+        $colleges = $campus->colleges()->get();
+
+        // Add impact assessments count for each college within this campus
+        $colleges = $colleges->map(function ($college) use ($campus) {
+            $assessmentsCount = ImpactAssessment::join('projects', 'impact_assessments.project_id', '=', 'projects.id')
+                ->join('campus_college', 'projects.campus_college_id', '=', 'campus_college.id')
+                ->where('campus_college.campus_id', $campus->id)
+                ->where('campus_college.college_id', $college->id)
+                ->where('impact_assessments.is_archived', false)
+                ->count();
+
+            $college->impact_assessments_count = $assessmentsCount;
+            return $college;
+        });
+
         return Inertia::render('admin/project-activities/impact-assessment/college', [
             'campus' => $campus,
-            'colleges' => $campus->colleges()->withCount([
-                'projects' => function ($query) use ($campus) {
-                    $query->whereHas('campusCollege', function ($subQuery) use ($campus) {
-                        $subQuery->where('campus_id', $campus->id);
-                    })->whereHas('impactAssessment', function ($assessmentQuery) {
-                        $assessmentQuery->where('is_archived', false);
-                    });
-                }
-            ])->get(),
+            'colleges' => $colleges,
         ]);
     }
 
