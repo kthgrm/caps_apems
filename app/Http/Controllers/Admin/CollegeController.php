@@ -55,7 +55,7 @@ class CollegeController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:5|unique:colleges,code',
             'campus_id' => 'required|exists:campuses,id',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $collegeData = [
