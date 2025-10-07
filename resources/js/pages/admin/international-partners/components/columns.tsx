@@ -219,6 +219,23 @@ export const columns: ColumnDef<InternationalPartner>[] = [
                 </div>
             )
         },
+        sortingFn: (rowA, rowB) => {
+            const partnershipA = rowA.original;
+            const partnershipB = rowB.original;
+
+            // Calculate duration for row A
+            const getDuration = (partnership: InternationalPartner) => {
+                if (!partnership.start_date || !partnership.end_date) return -1; // Put N/A at the end
+                const start = new Date(partnership.start_date);
+                const end = new Date(partnership.end_date);
+                return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+            };
+
+            const durationA = getDuration(partnershipA);
+            const durationB = getDuration(partnershipB);
+
+            return durationA - durationB;
+        },
     },
     {
         accessorKey: "user",

@@ -130,7 +130,7 @@ const ArchiveAwardButton = ({ award }: { award: Award }) => {
 
 export const columns: ColumnDef<Award>[] = [
     {
-        accessorKey: "name",
+        accessorKey: "award_name",
         header: ({ column }) => {
             return <DataTableColumnHeader column={column} title="Award Name" />
         },
