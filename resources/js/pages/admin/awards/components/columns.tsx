@@ -28,7 +28,7 @@ const ArchiveAwardButton = ({ award }: { award: Award }) => {
         setIsLoading(true);
         setErrorMessage('');
 
-        router.patch(`/admin/awards-recognition/${award.id}/archive`, {
+        router.patch(`/admin/awards-recognition/awards/${award.id}/archive`, {
             password: password
         }, {
             onSuccess: () => {

@@ -50,7 +50,6 @@ export default function AwardEdit() {
     const { data, setData, post, processing, errors, transform } = useForm({
         award_name: award.award_name || '',
         description: award.description || '',
-        level: award.level || 'local',
         date_received: award.date_received || '',
         event_details: award.event_details || '',
         location: award.location || '',
@@ -142,21 +141,6 @@ export default function AwardEdit() {
                                                 placeholder="Enter award name"
                                             />
                                             {errors.award_name && <InputError message={errors.award_name} className="mt-1" />}
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light" htmlFor="level">Award Level *</Label>
-                                            <Select value={data.level} onValueChange={(value) => setData('level', value as 'local' | 'regional' | 'national' | 'international')}>
-                                                <SelectTrigger className="mt-1">
-                                                    <SelectValue placeholder="Select award level" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="local">Local</SelectItem>
-                                                    <SelectItem value="regional">Regional</SelectItem>
-                                                    <SelectItem value="national">National</SelectItem>
-                                                    <SelectItem value="international">International</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.level && <InputError message={errors.level} className="mt-1" />}
                                         </div>
                                         <div>
                                             <Label className="text-sm font-light" htmlFor="date_received">Date Received *</Label>

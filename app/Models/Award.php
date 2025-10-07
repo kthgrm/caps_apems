@@ -12,7 +12,6 @@ class Award extends Model
         'award_name',
         'date_received',
         'description',
-        'level',
         'event_details',
         'awarding_body',
         'location',
