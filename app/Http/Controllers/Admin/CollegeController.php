@@ -53,7 +53,7 @@ class CollegeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10|unique:colleges,code',
+            'code' => 'required|string|max:5|unique:colleges,code',
             'campus_id' => 'required|exists:campuses,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);

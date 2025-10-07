@@ -48,7 +48,7 @@ export default function AddCampus() {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('admin.campus.store'), {
+        post(`/admin/campus`, {
             onSuccess: () => {
                 toast.success('Campus created successfully!');
                 reset();

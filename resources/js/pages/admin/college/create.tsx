@@ -48,7 +48,7 @@ export default function CreateCollege() {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('admin.college.store'), {
+        post('/admin/college', {
             onSuccess: () => {
                 toast.success('College created successfully!');
                 reset();
@@ -133,9 +133,6 @@ export default function CreateCollege() {
                                     className="h-10"
                                 />
                                 <InputError message={errors.code} />
-                                <p className="text-sm text-muted-foreground">
-                                    Short abbreviation for the college (max 10 characters)
-                                </p>
                             </div>
 
                             {/* College Logo */}
