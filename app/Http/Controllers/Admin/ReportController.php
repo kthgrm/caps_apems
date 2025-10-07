@@ -184,7 +184,7 @@ class ReportController extends Controller
                 'date_to',
                 'search'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -347,7 +347,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -504,7 +504,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -721,7 +721,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -957,7 +957,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -1183,7 +1183,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -1403,7 +1403,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
@@ -1662,7 +1662,7 @@ class ReportController extends Controller
                 'sort_by',
                 'sort_order'
             ]),
-            'generated_at' => now()->format('F d, Y \a\t h:i A'),
+            'generated_at' => now()->setTimezone('Asia/Manila')->format('F d, Y \a\t h:i A'),
             'generated_by' => Auth::user()?->name ?? 'Unknown User',
         ];
 
