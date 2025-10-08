@@ -47,8 +47,6 @@ export default function Projects() {
 
     const totalProjects = projects.length;
 
-    console.log('Projects:', projects);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Projects" />

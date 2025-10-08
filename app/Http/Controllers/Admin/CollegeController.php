@@ -65,7 +65,7 @@ class CollegeController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('colleges/logos', 'public');
+            $logoPath = $request->file('logo')->store('college-logo', 'spaces');
             $collegeData['logo'] = $logoPath;
         }
 
@@ -120,10 +120,10 @@ class CollegeController extends Controller
         if ($request->hasFile('logo')) {
             // Delete old logo if exists
             if ($college->logo) {
-                Storage::disk('public')->delete($college->logo);
+                Storage::disk('spaces')->delete($college->logo);
             }
 
-            $logoPath = $request->file('logo')->store('colleges/logos', 'public');
+            $logoPath = $request->file('logo')->store('college-logo', 'spaces');
             $collegeData['logo'] = $logoPath;
         }
 

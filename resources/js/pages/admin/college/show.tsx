@@ -13,6 +13,7 @@ import { Head, Link, usePage } from "@inertiajs/react";
 import { GraduationCap, Edit, Building, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { asset } from "@/lib/utils";
 
 type PageProps = {
     college: CampusCollege;
@@ -52,10 +53,6 @@ export default function ShowCollege() {
             hour: '2-digit',
             minute: '2-digit'
         });
-    };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
     };
 
     return (

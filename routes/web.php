@@ -18,7 +18,18 @@ use App\Http\Controllers\User\ImpactAssessmentController as UserImpactAssessment
 use App\Http\Controllers\User\ModalitiesController;
 use App\Http\Controllers\User\ProjectController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+
+// In routes/web.php (temporary test)
+Route::get('/test-spaces', function () {
+    try {
+        Storage::disk('spaces')->put('test.txt', 'Hello World');
+        return 'File uploaded successfully!';
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
 
 Route::group(['middleware' => 'auth'], function () {
     // Admin Routes

@@ -122,9 +122,9 @@ class TechnologyTransferController extends Controller
         if ($request->hasFile('attachment')) {
             // Delete old attachment if it exists
             if ($project->attachment_path) {
-                Storage::disk('public')->delete($project->attachment_path);
+                Storage::disk('spaces')->delete($project->attachment_path);
             }
-            $data['attachment_path'] = $request->file('attachment')->store('project-attachment', 'public');
+            $data['attachment_path'] = $request->file('attachment')->store('project-attachment', 'spaces');
         }
 
         // Update project

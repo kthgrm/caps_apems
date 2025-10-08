@@ -27,6 +27,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { asset } from '@/lib/utils';
 
 type ProjectShowProps = {
     project: Project;
@@ -58,10 +59,6 @@ export default function ProjectShow() {
             toast.info(flash.message);
         }
     });
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

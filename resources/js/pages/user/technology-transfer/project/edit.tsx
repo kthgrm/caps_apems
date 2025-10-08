@@ -21,6 +21,7 @@ import {
     Download
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { asset } from '@/lib/utils';
 
 type ProjectEditProps = {
     project: Project;
@@ -87,10 +88,6 @@ export default function ProjectEdit() {
             toast.info(flash.message);
         }
     });
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
