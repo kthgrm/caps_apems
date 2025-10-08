@@ -13,6 +13,7 @@ import { Target, Users, MapPin, Edit3, LoaderCircle, Folder, Building, FileText,
 import InputError from "@/components/input-error";
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { asset } from '@/lib/utils';
 
 interface ImpactAssessmentEditProps {
     assessment: ImpactAssessment;
@@ -74,10 +75,6 @@ export default function ImpactAssessmentEdit() {
             }
         });
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

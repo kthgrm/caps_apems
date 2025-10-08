@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AwardIcon, Trophy, Users, Building, Calendar, FileText, Download, MapPin, Image, Edit3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 interface AwardEditProps {
     award: Award;
@@ -77,10 +78,6 @@ export default function AwardEdit() {
                 toast.error('Failed to update award. Please check the form and try again.');
             }
         });
-    };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
     };
 
     return (

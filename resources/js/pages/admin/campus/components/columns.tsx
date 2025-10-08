@@ -12,6 +12,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Building, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { route } from "ziggy-js";
 import { useState } from "react";
+import { asset } from "@/lib/utils";
 
 // Delete Campus Component with Password Confirmation
 const DeleteCampusButton = ({ campus }: { campus: Campus }) => {
@@ -141,7 +142,7 @@ export const columns: ColumnDef<Campus>[] = [
                 <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
                         <AvatarImage
-                            src={campus.logo ? `/storage/${campus.logo}` : undefined}
+                            src={campus.logo ? asset(campus.logo) : undefined}
                             alt={`${campus.name} logo`}
                         />
                         <AvatarFallback className="bg-slate-100">

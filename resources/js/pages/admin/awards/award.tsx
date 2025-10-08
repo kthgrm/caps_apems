@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { AwardIcon, Trophy, Users, Building, Calendar, Clock, FileText, Download, User, MapPin, Image, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     award: Award;
@@ -96,10 +97,6 @@ export default function AwardsDetails() {
         setPassword('');
         setErrorMessage('');
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     const getAwardTypeColor = (awardName: string) => {
         // Simple logic to determine award type color based on common keywords

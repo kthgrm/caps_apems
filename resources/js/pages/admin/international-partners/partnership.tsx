@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Users, Building, MapPin, Calendar, Clock, FileText, Download, Target, Image, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     partnership: InternationalPartner;
@@ -94,10 +95,6 @@ export default function PartnershipDetails() {
         setPassword('');
         setErrorMessage('');
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     const getActivityColor = (activity: string) => {
         switch (activity) {

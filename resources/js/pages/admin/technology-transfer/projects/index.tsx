@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ProjectsTable } from '@/components/tables/admin/projects-table';
 import { DataTable } from '@/components/data-table';
 import { columns } from './components/columns';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     campus: Campus;
@@ -51,10 +52,6 @@ export default function Projects() {
             toast.info(flash.message);
         }
     }, [flash]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     const total_projects = projects.length;
 

@@ -14,6 +14,7 @@ import { GraduationCap, LoaderCircle, Upload, ArrowLeft, Calendar, Save, Buildin
 import { FormEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Link } from "@inertiajs/react";
+import { asset } from "@/lib/utils";
 
 type PageProps = {
     college: College & { campus: Campus };
@@ -50,7 +51,7 @@ export default function EditCollege() {
         logo: null as File | null,
     });
 
-    const [previewUrl, setPreviewUrl] = useState<string>(college.logo ? `/storage/${college.logo}` : '');
+    const [previewUrl, setPreviewUrl] = useState<string>(college.logo ? asset(college.logo) : '');
     const [hasNewFile, setHasNewFile] = useState<boolean>(false);
 
     useEffect(() => {

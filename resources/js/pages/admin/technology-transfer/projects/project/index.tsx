@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 export default function TechnologyTransfer() {
     const { project, flash } = usePage().props as unknown as {
@@ -92,10 +93,6 @@ export default function TechnologyTransfer() {
         setPassword('');
         setErrorMessage('');
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

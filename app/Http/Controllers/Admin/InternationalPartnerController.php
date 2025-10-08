@@ -105,9 +105,9 @@ class InternationalPartnerController extends Controller
         if ($request->hasFile('attachment')) {
             // Delete old file if it exists
             if ($partnership->attachment_path) {
-                Storage::disk('public')->delete($partnership->attachment_path);
+                Storage::disk('spaces')->delete($partnership->attachment_path);
             }
-            $validated['attachment_path'] = $request->file('attachment')->store('partner-attachments', 'public');
+            $validated['attachment_path'] = $request->file('attachment')->store('partner-attachments', 'spaces');
         }
 
         $partnership->update($validated);

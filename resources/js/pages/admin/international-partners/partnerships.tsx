@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Users, Activity, Building } from 'lucide-react';
 import { PartnershipsTable } from '@/components/tables/admin/international-partners-table';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     partnerships: InternationalPartner[];
@@ -43,10 +44,6 @@ export default function PartnershipIndex() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     // Calculate stats from the data if stats are not provided
     const totalParticipants = partnerships.reduce((sum, partnership) =>

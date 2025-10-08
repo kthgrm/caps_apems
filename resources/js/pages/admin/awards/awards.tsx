@@ -9,6 +9,7 @@ import { AwardIcon, Calendar, Users, Trophy, Building } from 'lucide-react';
 import { AwardsTable } from '@/components/tables/admin/awards-table';
 import { DataTable } from '@/components/data-table';
 import { columns } from './components/columns';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     campus: Campus;
@@ -44,10 +45,6 @@ export default function AwardsIndex() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     // Calculate statistics
     const totalAwards = awards.length;

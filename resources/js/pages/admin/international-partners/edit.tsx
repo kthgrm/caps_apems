@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Users, Building, MapPin, Calendar, FileText, Download, Target, Image, Edit3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 interface InternationalPartnerEditProps {
     partnership: InternationalPartner;
@@ -77,10 +78,6 @@ export default function InternationalPartnerEdit() {
                 toast.error('Failed to update partnership. Please check the form and try again.');
             }
         });
-    };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
     };
 
     return (

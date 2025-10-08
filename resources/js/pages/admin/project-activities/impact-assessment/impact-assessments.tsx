@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Building, TrendingUp } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import { columns } from './components/columns';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     assessments: ImpactAssessment[];
@@ -43,10 +44,6 @@ export default function ImpactAssessments() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     const totalAssessments = assessments.length;
     const totalDirect = assessments.reduce((sum, assessment) =>

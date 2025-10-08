@@ -13,6 +13,7 @@ import { Target, Users, Building, MapPin, TrendingUp, FileText, MapPinned, Paper
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 type ImpactAssessmentDetailsProps = {
     assessment: ImpactAssessment;
@@ -96,10 +97,6 @@ export default function ImpactAssessmentDetails() {
         setPassword('');
         setErrorMessage('');
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

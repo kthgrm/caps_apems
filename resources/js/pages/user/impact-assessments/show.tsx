@@ -43,10 +43,6 @@ export default function ImpactAssessmentDetails() {
         }
     }, [flash?.message]);
 
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Impact Assessment: ${assessment.project?.name || 'Unknown Project'}`} />

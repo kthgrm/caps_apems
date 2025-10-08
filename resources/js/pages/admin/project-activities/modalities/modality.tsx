@@ -13,6 +13,7 @@ import { Radio, Tv, Globe, Building, Clock, Users, FileText, Paperclip, Link as 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 type ModalityDetailsProps = {
     modality: Modalities;
@@ -96,10 +97,6 @@ export default function ModalityDetails() {
         setPassword('');
         setErrorMessage('');
     };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     const getModalityIcon = (modalityType: string) => {
         switch (modalityType.toLowerCase()) {

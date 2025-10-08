@@ -13,6 +13,7 @@ import type { BreadcrumbItem, Modalities } from '@/types';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InputError from '@/components/input-error';
 import { Separator } from '@/components/ui/separator';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     modality: Modalities;
@@ -62,10 +63,6 @@ export default function AdminModalityEdit() {
         partner_agency: modality.partner_agency || '',
         hosted_by: modality.hosted_by || '',
     });
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     useEffect(() => {
         if (flash?.message) {

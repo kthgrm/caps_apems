@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/sonner";
 import AppLayout from "@/layouts/app-layout";
+import { asset } from "@/lib/utils";
 import { BreadcrumbItem, Campus as BaseCampus } from "@/types";
 
 type Campus = BaseCampus & {
@@ -37,10 +38,6 @@ export default function TechnologyTransfer() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import type { BreadcrumbItem, InternationalPartner } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     partner: InternationalPartner;
@@ -60,10 +61,6 @@ export default function InternationalPartnerDetails() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

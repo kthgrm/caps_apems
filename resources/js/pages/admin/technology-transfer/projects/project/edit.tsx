@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
+import { asset } from '@/lib/utils';
 
 interface ProjectEditProps {
     project: Project;
@@ -99,10 +100,6 @@ export default function ProjectEdit() {
                 toast.error('Failed to update project. Please check the form and try again.');
             }
         });
-    };
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
     };
 
     return (

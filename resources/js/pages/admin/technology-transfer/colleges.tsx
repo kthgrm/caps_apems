@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app-layout';
+import { asset } from '@/lib/utils';
 import { Campus, College as BaseCollege, type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
@@ -40,10 +41,6 @@ export default function TechnologyTransfer() {
             href: `/admin/technology-transfer/${campus.id}`,
         },
     ];
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

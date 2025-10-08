@@ -19,6 +19,7 @@ import { Head, Link, usePage } from "@inertiajs/react";
 import { Building, Edit, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { asset } from "@/lib/utils";
 
 
 type PageProps = {
@@ -122,7 +123,7 @@ export default function CampusShow() {
                                         <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
                                             <Avatar className="h-16 w-16">
                                                 <AvatarImage
-                                                    src={`/storage/${campus.logo}`}
+                                                    src={asset(campus.logo)}
                                                     alt={`${campus.name} logo`}
                                                 />
                                                 <AvatarFallback>

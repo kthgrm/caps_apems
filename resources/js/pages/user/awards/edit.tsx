@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/sonner';
 import type { Award, BreadcrumbItem, } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     award: Award;
@@ -59,10 +60,6 @@ export default function InternationalPartnerDetails() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

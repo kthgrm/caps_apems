@@ -64,7 +64,7 @@ class AwardController extends Controller
         $award->fill($data);
 
         if ($request->hasFile('attachment')) {
-            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'public');
+            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'spaces');
         }
         $award->setCreatedAt(now('Asia/Manila'));
         $award->setUpdatedAt(now('Asia/Manila'));
@@ -140,7 +140,7 @@ class AwardController extends Controller
 
         $award->fill($data);
         if ($request->hasFile('attachment')) {
-            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'public');
+            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'spaces');
         }
         $award->setUpdatedAt(now('Asia/Manila'));
         $award->save();

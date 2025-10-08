@@ -9,6 +9,7 @@ import { Radio, Tv, Globe, Building } from 'lucide-react';
 import { ModalitiesTable } from '@/components/tables/admin/modalities-table';
 import { DataTable } from '@/components/data-table';
 import { columns } from './components/columns';
+import { asset } from '@/lib/utils';
 
 type PageProps = {
     modalities: Modalities[];
@@ -44,10 +45,6 @@ export default function ModalitiesList() {
             toast.info(flash.message);
         }
     }, [flash?.message]);
-
-    const asset = (path: string) => {
-        return `/storage/${path}`;
-    };
 
     const totalModalities = modalities.length;
     const tvCount = modalities.filter(modality => modality.tv_channel).length;

@@ -104,9 +104,9 @@ class AwardController extends Controller
         if ($request->hasFile('attachment')) {
             // Delete old file if it exists
             if ($award->attachment_path) {
-                Storage::disk('public')->delete($award->attachment_path);
+                Storage::disk('spaces')->delete($award->attachment_path);
             }
-            $validated['attachment_path'] = $request->file('attachment')->store('awards', 'public');
+            $validated['attachment_path'] = $request->file('attachment')->store('awards', 'spaces');
         }
 
         $award->update($validated);

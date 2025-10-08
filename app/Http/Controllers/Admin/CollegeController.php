@@ -191,7 +191,7 @@ class CollegeController extends Controller
 
         // Delete logo file if exists
         if ($college->logo) {
-            Storage::disk('public')->delete($college->logo);
+            Storage::disk('spaces')->delete($college->logo);
         }
 
         // Delete CampusCollege relationships

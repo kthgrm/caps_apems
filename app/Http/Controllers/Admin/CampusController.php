@@ -40,7 +40,7 @@ class CampusController extends Controller
         $logoPath = null;
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('campus-logo', 'public');
+            $logoPath = $request->file('logo')->store('campus-logo', 'spaces');
         }
 
         Campus::create([
@@ -67,12 +67,12 @@ class CampusController extends Controller
 
         if ($request->hasFile('logo')) {
             // Delete old logo if exists
-            if ($campus->logo && Storage::disk('public')->exists($campus->logo)) {
-                Storage::disk('public')->delete($campus->logo);
+            if ($campus->logo && Storage::disk('spaces')->exists($campus->logo)) {
+                Storage::disk('spaces')->delete($campus->logo);
             }
 
             // Store new logo
-            $updateData['logo'] = $request->file('logo')->store('campus-logo', 'public');
+            $updateData['logo'] = $request->file('logo')->store('campus-logo', 'spaces');
         }
 
         $campus->update($updateData);
@@ -123,8 +123,8 @@ class CampusController extends Controller
         }
 
         // Delete logo if exists
-        if ($campus->logo && Storage::disk('public')->exists($campus->logo)) {
-            Storage::disk('public')->delete($campus->logo);
+        if ($campus->logo && Storage::disk('spaces')->exists($campus->logo)) {
+            Storage::disk('spaces')->delete($campus->logo);
         }
 
         $campus->delete();

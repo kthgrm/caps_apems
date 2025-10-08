@@ -64,7 +64,7 @@ class InternationalPartnerController extends Controller
         $partner->fill($data);
 
         if ($request->hasFile('attachment')) {
-            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'public');
+            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'spaces');
         }
         $partner->setCreatedAt(now('Asia/Manila'));
         $partner->setUpdatedAt(now('Asia/Manila'));
@@ -140,7 +140,7 @@ class InternationalPartnerController extends Controller
 
         $partner->fill($data);
         if ($request->hasFile('attachment')) {
-            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'public');
+            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'spaces');
         }
         $partner->setUpdatedAt(now('Asia/Manila'));
         $partner->save();
