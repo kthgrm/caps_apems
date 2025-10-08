@@ -48,7 +48,7 @@ class CampusController extends Controller
             'logo' => $logoPath,
         ]);
 
-        return redirect()->route('admin.campus.create');
+        return redirect()->route('admin.campus.index')->with('message', 'Campus created successfully!');
     }
 
     public function edit(Campus $campus)
