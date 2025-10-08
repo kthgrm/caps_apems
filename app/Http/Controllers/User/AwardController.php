@@ -47,7 +47,6 @@ class AwardController extends Controller
         $data = $request->validate([
             'award_name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
-            'level' => 'required|in:local,regional,national,international',
             'date_received' => 'required|date',
             'event_details' => 'required|string|max:255',
             'location' => 'required|string|max:255',
