@@ -140,7 +140,7 @@ export default function CampusShow() {
                                                     variant="outline"
                                                     size="sm"
                                                     className="mt-2"
-                                                    onClick={() => window.open(`/storage/${campus.logo}`, '_blank')}
+                                                    onClick={() => window.open(asset(campus.logo), '_blank')}
                                                 >
                                                     View Full Size
                                                 </Button>
