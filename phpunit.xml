@@ -5,11 +5,29 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Unit">
+        <!-- Unit Tests -->
+        <!-- <testsuite name="Unit">
             <directory>tests/Unit</directory>
+        </testsuite> -->
+        <!-- Authentication Tests (Run First) -->
+        <testsuite name="Auth">
+            <directory>tests/Feature/Auth</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <!-- Admin Feature Tests -->
+        <testsuite name="Admin">
+            <directory>tests/Feature/Admin</directory>
+        </testsuite>
+        <!-- User Feature Tests -->
+        <testsuite name="User">
+            <directory>tests/Feature/User</directory>
+        </testsuite>
+        <!-- Settings Tests -->
+        <!-- <testsuite name="Settings">
+            <directory>tests/Feature/Settings</directory>
+        </testsuite> -->
+        <!-- Middleware Tests -->
+        <testsuite name="Middleware">
+            <directory>tests/Feature/Middleware</directory>
         </testsuite>
     </testsuites>
     <source>

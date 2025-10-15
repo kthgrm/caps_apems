@@ -22,11 +22,11 @@ import {
     Download,
     ExternalLink,
     Image,
-    Eye
+    Eye,
+    File
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { asset } from '@/lib/utils';
 
 type ProjectShowProps = {
@@ -342,32 +342,43 @@ export default function ProjectShow() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                <div className="flex items-center p-3 border rounded-lg">
-                                    {project.attachment_path ? (
-                                        <Dialog>
-                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                <Image className="h-4 w-4" />
-                                                <p className="text-sm">Project Attachment</p>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Project Attachment</DialogTitle>
-                                                    <DialogDescription>
-                                                        <img src={asset(project.attachment_path)} alt="Project Attachment" className="w-full h-auto" />
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                            </DialogContent>
-                                        </Dialog>
+                                <div className="space-y-2">
+                                    {project.attachment_paths && project.attachment_paths.length > 0 ? (
+                                        project.attachment_paths.map((path, index) => {
+                                            const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+
+                                            return (
+                                                <div key={index} className="flex items-center p-3 border rounded-lg">
+                                                    <a
+                                                        href={asset(path)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-blue-500 hover:underline w-full"
+                                                    >
+                                                        {isImage ? (
+                                                            <Image className="h-4 w-4 flex-shrink-0" />
+                                                        ) : (
+                                                            <File className="h-4 w-4 flex-shrink-0" />
+                                                        )}
+                                                        <span className="text-sm flex-1">{fileName}</span>
+                                                        <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                                                    </a>
+                                                </div>
+                                            );
+                                        })
                                     ) : (
-                                        <div className="text-sm gap-2 flex items-center">
-                                            <Image className="h-4 w-4" />
-                                            No Attachment
+                                        <div className="flex items-center p-3 border rounded-lg">
+                                            <div className="text-sm gap-2 flex items-center">
+                                                <File className="h-4 w-4" />
+                                                No Attachment
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex items-center justify-between p-3 border rounded-lg">
                                     {project.attachment_link ? (
-                                        <div>
+                                        <div className="space-y-2">
                                             <div className="flex items-center gap-2">
                                                 <ExternalLink className="h-4 w-4" />
                                                 <span className="text-sm">External Link</span>
@@ -377,10 +388,9 @@ export default function ProjectShow() {
                                                 href={project.attachment_link}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-primary hover:underline text-sm flex items-center gap-1"
+                                                className="text-blue-500 hover:underline text-sm flex items-center gap-1"
                                             >
-                                                <ExternalLink className="h-3 w-3" />
-                                                Open Link
+                                                {project.attachment_link}
                                             </a>
                                         </div>
                                     ) : (
@@ -389,7 +399,6 @@ export default function ProjectShow() {
                                             No External Link
                                         </div>
                                     )}
-
                                 </div>
                             </CardContent>
                         </Card>

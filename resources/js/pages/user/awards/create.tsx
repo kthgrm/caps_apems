@@ -1,7 +1,7 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { FormEventHandler, useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { LoaderCircle, Award, FileText, Users, Target, Building, Calendar, AwardIcon, CalendarRange } from 'lucide-react';
+import { LoaderCircle, Award, FileText, Users, Target, Building, Calendar, AwardIcon, CalendarRange, Upload, X, File, Image } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,7 @@ type PageProps = {
 
 export default function CreateAward() {
     const { user, flash } = usePage<PageProps>().props;
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [activeTab, setActiveTab] = useState('award-details');
 
@@ -47,12 +48,53 @@ export default function CreateAward() {
         awarding_body: '',
         people_involved: '',
 
-        attachment: null as File | null,
+        attachments: [] as File[],
         attachment_link: '',
 
         created_at: new Date().toISOString().split('T')[0],
         updated_at: new Date().toISOString().split('T')[0],
     });
+
+    // Helper functions for file handling
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                return false;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                return false;
+            }
+
+            return true;
+        });
+
+        // Replace existing files instead of appending to avoid accumulation
+        setData('attachments', validFiles);
+    };
+
+    const clearAllFiles = () => {
+        setData('attachments', []);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
     useEffect(() => {
         if (flash?.message) {
@@ -62,6 +104,7 @@ export default function CreateAward() {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+
         post(route('user.awards.store'), {
             onSuccess: () => {
                 toast.success('Award created successfully!');
@@ -247,27 +290,21 @@ export default function CreateAward() {
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="attachment">Upload File (max size: 2MB)</Label>
+                                            <Label htmlFor="attachments">Upload Files (max size: 10MB each)</Label>
                                             <Input
-                                                id="attachment"
+                                                ref={fileInputRef}
+                                                id="attachments"
                                                 type="file"
-                                                placeholder="Upload your files"
-                                                accept=".jpg,.jpeg,.png"
-                                                multiple={false}
-                                                onChange={(e) => {
-                                                    const file = e.target.files && e.target.files[0];
-                                                    if (file) {
-                                                        // Validate file size (e.g., 2MB limit)
-                                                        if (file.size <= 2 * 1024 * 1024) {
-                                                            setData('attachment', file);
-                                                        } else {
-                                                            toast.error('File size exceeds the 2MB limit');
-                                                        }
-                                                    }
-                                                }}
+                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                multiple
+                                                onChange={(e) => addFiles(e.target.files)}
                                                 disabled={processing}
+                                                className="flex-1"
                                             />
-                                            <InputError message={errors.attachment} />
+                                            <p className="text-sm text-muted-foreground">
+                                                Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                            </p>
+                                            <InputError message={errors.attachments} />
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="attachment_link">Upload Link</Label>
@@ -284,6 +321,53 @@ export default function CreateAward() {
                                             <InputError message={errors.attachment_link} />
                                         </div>
                                     </div>
+
+                                    {/* Display selected files */}
+                                    {data.attachments.length > 0 && (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <Label className="text-sm text-muted-foreground">
+                                                    Selected Files ({data.attachments.length})
+                                                </Label>
+                                                {data.attachments.length > 0 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={clearAllFiles}
+                                                        disabled={processing}
+                                                        className="text-xs"
+                                                    >
+                                                        Clear
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                {data.attachments.map((file, index) => (
+                                                    <div
+                                                        key={`${file.name}-${index}`}
+                                                        className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="flex-shrink-0">
+                                                                {file.type.startsWith('image/') ? (
+                                                                    <FileText className="h-5 w-5 text-blue-500" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-gray-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {formatFileSize(file.size)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>

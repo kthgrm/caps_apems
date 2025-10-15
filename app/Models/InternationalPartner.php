@@ -21,7 +21,7 @@ class InternationalPartner extends Model
         'number_of_participants',
         'number_of_committee',
         'narrative',
-        'attachment_path',
+        'attachment_paths',
         'attachment_link',
         'is_archived',
     ];
@@ -29,6 +29,10 @@ class InternationalPartner extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'is_archived' => 'boolean',
+        'number_of_participants' => 'integer',
+        'number_of_committee' => 'integer',
+        'attachment_paths' => 'array',
     ];
 
     public function user()

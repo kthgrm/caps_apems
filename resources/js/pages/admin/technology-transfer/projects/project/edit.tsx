@@ -2,7 +2,7 @@ import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app-layout';
 import { Project, type BreadcrumbItem } from '@/types';
 import { Head, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3 } from 'lucide-react';
+import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
 import { asset } from '@/lib/utils';
@@ -25,6 +25,7 @@ interface ProjectEditProps {
 
 export default function ProjectEdit() {
     const { project, flash } = usePage().props as unknown as ProjectEditProps;
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -50,7 +51,7 @@ export default function ProjectEdit() {
     ];
 
     // Form handling with all project fields
-    const { data, setData, post, processing, errors, transform } = useForm({
+    const { data, setData, processing, errors } = useForm({
         name: project.name || '',
         description: project.description || '',
         category: project.category || 'private',
@@ -71,11 +72,50 @@ export default function ProjectEdit() {
         monitoring_evaluation_plan: project.monitoring_evaluation_plan || '',
         sustainability_plan: project.sustainability_plan || '',
         reporting_frequency: project.reporting_frequency?.toString() || '',
-        attachment: null as File | null,
+        attachments: [] as File[],
         attachment_link: project.attachment_link || '',
-        remarks: project.remarks || '',
-        _method: 'PUT'
     });
+
+    // Helper functions for file handling
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                return false;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                return false;
+            }
+
+            return true;
+        });
+
+        // Replace existing files instead of appending to avoid accumulation
+        setData('attachments', validFiles);
+    };
+
+    const clearAllFiles = () => {
+        setData('attachments', []);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
     useEffect(() => {
         if (flash?.message) {
@@ -83,21 +123,18 @@ export default function ProjectEdit() {
         }
     }, [flash?.message]);
 
-    // Transform data before sending
-    transform((data) => ({
-        ...data,
-        reporting_frequency: data.reporting_frequency ? parseInt(data.reporting_frequency) : null,
-    }));
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(`/admin/technology-transfer/projects/${project.id}`, {
+        router.post(`/admin/technology-transfer/projects/${project.id}`, {
+            ...data,
+            _method: 'PUT',
+        }, {
             onSuccess: () => {
-                toast.success('Project updated successfully.');
+                toast.success('Project updated successfully!');
             },
-            onError: () => {
-                toast.error('Failed to update project. Please check the form and try again.');
+            onError: (errors) => {
+                toast.error('Please check the form for errors.');
             }
         });
     };
@@ -373,26 +410,6 @@ export default function ProjectEdit() {
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            {/* Remarks */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Additional Remarks</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div>
-                                        <Label className="text-sm font-light" htmlFor="remarks">Remarks</Label>
-                                        <Textarea
-                                            id="remarks"
-                                            value={data.remarks}
-                                            onChange={(e) => setData('remarks', e.target.value)}
-                                            className="mt-1 min-h-[100px]"
-                                            placeholder="Any additional remarks or notes"
-                                        />
-                                        {errors.remarks && <InputError message={errors.remarks} className="mt-1" />}
-                                    </div>
-                                </CardContent>
-                            </Card>
                         </div>
 
                         {/* Sidebar */}
@@ -484,55 +501,119 @@ export default function ProjectEdit() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div>
-                                        <Label className="text-sm font-light" htmlFor="attachment">Upload Attachment</Label>
-                                        <Input
-                                            id="attachment"
-                                            type="file"
-                                            accept="image/*,.pdf,.doc,.docx"
-                                            onChange={(e) => setData('attachment', e.target.files?.[0] || null)}
-                                            className="mt-1"
-                                        />
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            Supported formats: Images, PDF, DOC, DOCX (Max 10MB)
-                                        </p>
-                                        {errors.attachment && <InputError message={errors.attachment} className="mt-1" />}
-                                    </div>
-
-                                    {/* Current attachment display */}
-                                    {project.attachment_path && (
-                                        <div className="mt-3">
-                                            <Label className="text-sm font-medium">Current Attachment</Label>
-                                            <div className="mt-1 p-2 border rounded-md">
-                                                <Dialog>
-                                                    <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                        <Image className="h-4 w-4" />
-                                                        <p className="text-sm">View Current Attachment</p>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>Project Attachment</DialogTitle>
-                                                            <DialogDescription>
-                                                                <img src={asset(project.attachment_path)} alt="Project Attachment" className="w-full h-auto" />
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                    </DialogContent>
-                                                </Dialog>
+                                    {/* Existing Attachments */}
+                                    {project.attachment_paths && project.attachment_paths.length > 0 && (
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">Current Attachments ({project.attachment_paths.length})</Label>
+                                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                                {project.attachment_paths.map((path, index) => {
+                                                    const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                                    return (
+                                                        <div
+                                                            key={`existing-${index}`}
+                                                            className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
+                                                        >
+                                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                                <div className="flex-shrink-0">
+                                                                    <FileText className="h-5 w-5 text-blue-500" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-sm font-medium truncate">{fileName}</p>
+                                                                </div>
+                                                            </div>
+                                                            <a
+                                                                href={asset(path)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-blue-600 hover:underline text-sm flex items-center gap-1"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                                View
+                                                            </a>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
 
+                                    {/* New File Upload */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="attachments">Upload New Files</Label>
+                                            {data.attachments.length > 0 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={clearAllFiles}
+                                                    disabled={processing}
+                                                    className="text-xs"
+                                                >
+                                                    Clear
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                ref={fileInputRef}
+                                                id="attachments"
+                                                type="file"
+                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                multiple={true}
+                                                onChange={(e) => addFiles(e.target.files)}
+                                                disabled={processing}
+                                                className="file:mr-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                        </p>
+                                        {errors.attachments && <p className="text-red-500 text-sm">{errors.attachments}</p>}
+                                    </div>
+
+                                    {/* New File List */}
+                                    {data.attachments.length > 0 && (
+                                        <div className="space-y-2">
+                                            <Label className="text-base font-medium">New Files to Upload ({data.attachments.length})</Label>
+                                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                {data.attachments.map((file, index) => (
+                                                    <div
+                                                        key={`new-${file.name}-${index}`}
+                                                        className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="flex-shrink-0">
+                                                                {file.type.startsWith('image/') ? (
+                                                                    <Image className="h-5 w-5 text-green-500" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-green-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {formatFileSize(file.size)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* External Link */}
                                     <div>
-                                        <Label className="text-sm font-light" htmlFor="attachment_link">Attachment Link</Label>
+                                        <Label className="text-sm font-light" htmlFor='attachment_link'>External Link</Label>
                                         <Input
-                                            id="attachment_link"
-                                            type="url"
+                                            id='attachment_link'
+                                            type='url'
                                             value={data.attachment_link}
-                                            onChange={(e) => setData('attachment_link', e.target.value)}
                                             className="mt-1"
-                                            placeholder="https://example.com/document"
+                                            onChange={(e) => setData('attachment_link', e.target.value)}
                                         />
-                                        {errors.attachment_link && <InputError message={errors.attachment_link} className="mt-1" />}
+                                        {errors.attachment_link && <p className="text-red-500 text-sm mt-1">{errors.attachment_link}</p>}
                                     </div>
                                 </CardContent>
                             </Card>

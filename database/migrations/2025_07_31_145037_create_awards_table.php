@@ -21,7 +21,6 @@ return new class extends Migration
             // Basic Information
             $table->string('award_name');
             $table->string('description');
-            $table->enum('level', ['local', 'regional', 'national', 'international']);
             $table->date('date_received');
 
             // Event Details

@@ -18,11 +18,14 @@ class Award extends Model
         'people_involved',
         'attachment_link',
         'attachment_path',
+        'attachment_paths',
         'is_archived',
     ];
 
     protected $casts = [
         'date_received' => 'date',
+        'attachment_paths' => 'array',
+        'is_archived' => 'boolean',
     ];
 
     public function user()

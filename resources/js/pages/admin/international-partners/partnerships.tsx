@@ -52,6 +52,7 @@ export default function PartnershipIndex() {
     const totalCommittee = partnerships.reduce((sum, partnership) =>
         sum + Number(partnership.number_of_committee), 0
     );
+
     const uniquePartners = new Set(partnerships.map(e => e.agency_partner)).size;
 
     const totalPartnerships = partnerships.length;

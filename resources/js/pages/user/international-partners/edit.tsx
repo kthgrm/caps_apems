@@ -1,7 +1,7 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { Users, Calendar, FileText, Download, Target, ExternalLink, Image, LoaderCircle } from 'lucide-react';
+import { Users, Calendar, FileText, Download, Target, ExternalLink, Image, LoaderCircle, File as FileIcon, X } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
@@ -40,8 +40,9 @@ export default function InternationalPartnerDetails() {
         },
     ];
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const { data, setData, put, processing, errors } = useForm({
-        id: partner.id,
         agency_partner: partner.agency_partner || '',
         location: partner.location || '',
         activity_conducted: partner.activity_conducted || '',
@@ -51,9 +52,9 @@ export default function InternationalPartnerDetails() {
         number_of_committee: partner.number_of_committee.toString() || '',
         narrative: partner.narrative || '',
 
-        attachment_path: partner.attachment_path || '',
+        attachment_paths: partner.attachment_paths || [],
+        attachments: [] as File[],
         attachment_link: partner.attachment_link || '',
-        attachment: null as File | null,
     });
 
     useEffect(() => {
@@ -62,11 +63,53 @@ export default function InternationalPartnerDetails() {
         }
     }, [flash?.message]);
 
+    // Helper functions for file handling
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                return false;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                return false;
+            }
+            return true;
+        });
+
+        setData('attachments', validFiles);
+    };
+
+    const clearAllFiles = () => {
+        setData('attachments', []);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         router.post(`/user/international-partners/${partner.id}`, {
-            _method: 'put',
+            _method: 'PUT',
             ...data,
+        }, {
+            onSuccess: () => {
+                toast.success('Partnership updated successfully!');
+            },
+            onError: (errors) => {
+                console.log('Validation errors:', errors);
+                toast.error('Please check the form for errors.');
+            }
         });
     };
 
@@ -108,7 +151,7 @@ export default function InternationalPartnerDetails() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <Label className="text-sm font-light">Partner ID</Label>
-                                            <Input value={data.id} readOnly className="mt-1 bg-muted" />
+                                            <Input value={partner.id} readOnly className="mt-1 bg-muted" />
                                         </div>
                                         <div>
                                             <Label className="text-sm font-light">Agency Partner</Label>
@@ -241,32 +284,61 @@ export default function InternationalPartnerDetails() {
                                 </CardHeader>
                                 <CardContent className="space-y-3">
                                     <div className="space-y-2">
-                                        {partner.attachment_path ? (
+                                        {partner.attachment_paths && partner.attachment_paths.length > 0 ? (
                                             <>
-                                                <a href={asset(data.attachment_path)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline text-sm ">
-                                                    <Image className="h-4 w-4" />
-                                                    Current Attachment
-                                                </a>
+                                                {partner.attachment_paths && partner.attachment_paths.map((path: string, index: number) => {
+                                                    const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                                    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+                                                    return (
+                                                        <div key={index} className="flex items-center p-2 border rounded-lg">
+                                                            <a href={asset(path)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline text-sm w-full">
+                                                                {isImage ? <Image className="h-4 w-4" /> : <FileIcon className="h-4 w-4" />}
+                                                                <span className="truncate">{fileName}</span>
+                                                                <ExternalLink className="h-3 w-3 ml-auto" />
+                                                            </a>
+                                                        </div>
+                                                    );
+                                                })}
                                             </>
                                         ) : (
                                             <p className='text-sm'>No attachment uploaded</p>
                                         )}
-                                        <Label className="text-sm font-light mt-2">Update Attachment</Label>
-                                        <Input
-                                            type="file"
-                                            accept=".jpeg, .jpg, .png"
-                                            size={1024}
-                                            onChange={(e) => {
-                                                setData('attachment', e.target.files && e.target.files[0] ? e.target.files[0] : null)
-                                            }}
-                                        />
+
+                                        <Label className="text-sm font-light mt-2">Update Attachments</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept=".jpeg, .jpg, .png, .pdf, .doc, .docx"
+                                                multiple
+                                                onChange={(e) => addFiles(e.target.files)}
+                                            />
+                                            <Button type="button" variant="outline" size="sm" onClick={clearAllFiles} disabled={data.attachments.length === 0}>Clear All</Button>
+                                        </div>
+
+                                        {data.attachments.length > 0 && (
+                                            <div className="space-y-2 mt-2">
+                                                {data.attachments.map((file, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-2 border rounded">
+                                                        <div className="flex items-center gap-2">
+                                                            {file.type.startsWith('image/') ? <Image className="h-4 w-4" /> : <FileIcon className="h-4 w-4" />}
+                                                            <span className="truncate">{file.name}</span>
+                                                            <span className="text-muted-foreground">({formatFileSize(file.size)})</span>
+                                                        </div>
+                                                        <Button type="button" variant="ghost" size="sm" onClick={() => setData('attachments', data.attachments.filter((_, i) => i !== idx))}>
+                                                            <X className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <Label className="text-sm font-light" htmlFor='attachment_link'>External Link</Label>
                                         <Input
                                             id='attachment_link'
                                             type='url'
-                                            value={data.attachment_link}
+                                            value={data.attachment_link || ''}
                                             className="mt-1"
                                             onChange={(e) => setData('attachment_link', e.target.value)}
                                         />

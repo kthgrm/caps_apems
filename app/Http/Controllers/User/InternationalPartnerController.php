@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class InternationalPartnerController extends Controller
@@ -54,7 +55,7 @@ class InternationalPartnerController extends Controller
             'number_of_committee' => 'required|integer',
             'narrative' => 'required|string',
 
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
         ]);
 
@@ -63,9 +64,16 @@ class InternationalPartnerController extends Controller
         $partner->campus_college_id = Auth::user()->campus_college_id;
         $partner->fill($data);
 
-        if ($request->hasFile('attachment')) {
-            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'spaces');
+        // Handle multiple file uploads
+        $attachmentPaths = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('partner-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
         }
+        $partner->attachment_paths = $attachmentPaths;
+        $partner->attachment_link = $request->input('attachment_link');
         $partner->setCreatedAt(now('Asia/Manila'));
         $partner->setUpdatedAt(now('Asia/Manila'));
         $partner->save();
@@ -134,15 +142,32 @@ class InternationalPartnerController extends Controller
             'number_of_committee' => 'required|integer',
             'narrative' => 'required|string',
 
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
         ]);
 
         $partner->fill($data);
-        if ($request->hasFile('attachment')) {
-            $partner->attachment_path = $request->file('attachment')->store('partner-attachments', 'spaces');
+
+        // Handle multiple file uploads for update
+        if ($request->hasFile('attachments')) {
+            // Delete old attachments if they exist
+            if ($partner->attachment_paths) {
+                foreach ($partner->attachment_paths as $oldPath) {
+                    if (Storage::disk('spaces')->exists($oldPath)) {
+                        Storage::disk('spaces')->delete($oldPath);
+                    }
+                }
+            }
+
+            // Upload new attachments
+            $attachmentPaths = [];
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('project-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
+            $partner->attachment_paths = $attachmentPaths;
         }
-        $partner->setUpdatedAt(now('Asia/Manila'));
+
         $partner->save();
 
         return redirect(route('user.international-partners.show', $partner))

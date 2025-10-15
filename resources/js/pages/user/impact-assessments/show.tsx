@@ -151,11 +151,23 @@ export default function ImpactAssessmentDetails() {
                                     <Card>
                                         <CardContent>
                                             <div className="flex items-center justify-between">
-                                                <h2 className="text-lg font-semibold">{assessment.project.name}</h2>
-                                                <Link href={`/user/technology-transfer/project/${assessment.project.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
-                                                    <span className='text-sm'>View Project Details</span>
-                                                    <ExternalLink className="w-4" />
-                                                </Link>
+                                                <div className="flex items-center gap-2">
+                                                    <h2 className="text-lg font-semibold">{assessment.project.name}</h2>
+                                                    {assessment.project.is_archived && (
+                                                        <Badge variant="destructive" className="ml-2">Deleted</Badge>
+                                                    )}
+                                                </div>
+                                                {assessment.project.is_archived ? (
+                                                    <span className="text-gray-400 flex space-x-1 items-center cursor-not-allowed select-none">
+                                                        <span className='text-sm'>Project Deleted</span>
+                                                        <ExternalLink className="w-4" />
+                                                    </span>
+                                                ) : (
+                                                    <Link href={`/user/technology-transfer/project/${assessment.project.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
+                                                        <span className='text-sm'>View Project Details</span>
+                                                        <ExternalLink className="w-4" />
+                                                    </Link>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>

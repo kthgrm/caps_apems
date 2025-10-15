@@ -1,7 +1,7 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { FormEventHandler, useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { LoaderCircle, Users, FileText, Clock3 } from 'lucide-react';
+import { LoaderCircle, Users, FileText, Clock3, File as FileIcon, Image, X, Upload } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,22 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+type PartnerForm = {
+    agency_partner: string;
+    location: string;
+    activity_conducted: string;
+    start_date: string;
+    end_date: string;
+    number_of_participants: string;
+    number_of_committee: string;
+    narrative: string;
+    remarks: string;
+    attachments: File[];
+    attachment_link?: string;
+    created_at: string;
+    updated_at: string;
+}
+
 type PageProps = {
     user: User;
     flash?: { message?: string };
@@ -35,7 +51,7 @@ export default function CreateEngagement() {
 
     const [activeTab, setActiveTab] = useState('partnership-details');
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm<PartnerForm>({
         agency_partner: '',
         location: '',
         activity_conducted: '',
@@ -46,22 +62,60 @@ export default function CreateEngagement() {
         narrative: '',
         remarks: '',
 
-        attachment: null as File | null,
+        attachments: [] as File[],
         attachment_link: '',
 
         created_at: new Date().toISOString().split('T')[0],
         updated_at: new Date().toISOString().split('T')[0],
     });
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Helper functions for file handling
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                return false;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                return false;
+            }
+            return true;
+        });
+
+        // Replace existing files instead of appending
+        setData('attachments', validFiles);
+    };
+
+    const clearAllFiles = () => {
+        setData('attachments', []);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
 
+        // Use router.post to ensure multipart/form-data is handled when files present
         post(route('user.international-partners.store'), {
             onSuccess: () => {
                 toast.success('Record created successfully!');
                 reset();
             },
-            onError: (errors) => {
+            onError: () => {
                 toast.error('Please check the form for errors.');
             }
         });
@@ -75,12 +129,12 @@ export default function CreateEngagement() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Add New Engagement" />
+            <Head title="International Partnership" />
             <Toaster position="bottom-right" />
 
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-medium">Add New Engagement</h1>
+                    <h1 className="text-2xl font-medium">Add New Partnership</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -283,27 +337,21 @@ export default function CreateEngagement() {
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="attachment">Upload File (max size: 2MB)</Label>
+                                            <Label htmlFor="attachments">Upload Files</Label>
                                             <Input
-                                                id="attachment"
+                                                ref={fileInputRef}
+                                                id="attachments"
                                                 type="file"
-                                                placeholder="Upload your files"
-                                                accept=".jpg,.jpeg,.png"
-                                                multiple={false}
-                                                onChange={(e) => {
-                                                    const file = e.target.files && e.target.files[0];
-                                                    if (file) {
-                                                        // Validate file size (e.g., 2MB limit)
-                                                        if (file.size <= 2 * 1024 * 1024) {
-                                                            setData('attachment', file);
-                                                        } else {
-                                                            toast.error('File size exceeds the 2MB limit');
-                                                        }
-                                                    }
-                                                }}
+                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                multiple={true}
+                                                onChange={(e) => addFiles(e.target.files)}
                                                 disabled={processing}
+                                                className="file:mr-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                             />
-                                            <InputError message={errors.attachment} />
+                                            <p className="text-sm text-muted-foreground">
+                                                Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                            </p>
+                                            <InputError message={errors.attachments} />
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="attachment_link">Upload Link</Label>
@@ -312,14 +360,57 @@ export default function CreateEngagement() {
                                                 type="url"
                                                 placeholder="Enter your file link"
                                                 value={data.attachment_link}
-                                                onChange={(e) => {
-                                                    setData('attachment_link', e.target.value);
-                                                }}
+                                                onChange={(e) => setData('attachment_link', e.target.value)}
                                                 disabled={processing}
                                             />
                                             <InputError message={errors.attachment_link} />
                                         </div>
                                     </div>
+
+                                    {/* File List */}
+                                    {data.attachments.length > 0 && (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <Label className="text-base font-medium">Selected Files ({data.attachments.length})</Label>
+                                                {data.attachments.length > 0 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={clearAllFiles}
+                                                        disabled={processing}
+                                                        className="text-xs"
+                                                    >
+                                                        Clear
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                {data.attachments.map((file, index) => (
+                                                    <div
+                                                        key={`${file.name}-${index}`}
+                                                        className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="flex-shrink-0">
+                                                                {file.type.startsWith('image/') ? (
+                                                                    <FileText className="h-5 w-5 text-blue-500" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-gray-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {formatFileSize(file.size)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>

@@ -60,24 +60,22 @@ class ProjectController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'tags' => 'required|string|max:255',
             'leader' => 'required|string|max:255',
-            'deliverables' => 'required|string|max:255',
+            'deliverables' => 'nullable|string|max:255',
             'agency_partner' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'contact_email' => 'required|email|max:255',
             'contact_phone' => 'required|string|max:255',
             'contact_address' => 'required|string|max:255',
             'copyright' => 'required|in:yes,no,pending',
-            'ip_details' => 'required|string|max:255',
+            'ip_details' => 'nullable|string|max:255',
 
             'is_assessment_based' => 'required|boolean',
             'monitoring_evaluation_plan' => 'nullable|string',
             'sustainability_plan' => 'nullable|string',
             'reporting_frequency' => 'required|integer|min:0',
 
-            'attachment' => 'nullable|file|mimes:jpeg,png,jpg|max:1024',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
-
-            'remarks' => 'nullable|string',
         ]);
 
         $project = new Project();
@@ -85,9 +83,15 @@ class ProjectController extends Controller
         $project->campus_college_id = Auth::user()->campus_college_id;
         $project->fill($validated);
 
-        if ($request->hasFile('attachment')) {
-            $project->attachment_path = $request->file('attachment')->store('project-attachment', 'spaces');
+        // Handle multiple file uploads
+        $attachmentPaths = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('project-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
         }
+        $project->attachment_paths = $attachmentPaths;
         $project->attachment_link = $request->input('attachment_link');
         $project->setCreatedAt(now('Asia/Manila'));
         $project->setUpdatedAt(now('Asia/Manila'));
@@ -131,39 +135,49 @@ class ProjectController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'tags' => 'required|string|max:255',
             'leader' => 'required|string|max:255',
-            'deliverables' => 'required|string|max:255',
+            'deliverables' => 'nullable|string|max:255',
             'agency_partner' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'contact_email' => 'required|email|max:255',
             'contact_phone' => 'required|string|max:255',
             'contact_address' => 'required|string|max:255',
             'copyright' => 'required|in:yes,no,pending',
-            'ip_details' => 'required|string|max:255',
+            'ip_details' => 'nullable|string|max:255',
 
             'is_assessment_based' => 'required|boolean',
             'monitoring_evaluation_plan' => 'nullable|string',
             'sustainability_plan' => 'nullable|string',
             'reporting_frequency' => 'required|integer|min:0',
 
-            'attachment' => 'nullable|file|mimes:jpeg,png,jpg|max:1024',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
-
-            'remarks' => 'nullable|string',
         ]);
 
         $project->fill($data);
 
-        if ($request->hasFile('attachment')) {
-            // Delete old attachment if exists
-            if ($project->attachment_path && Storage::disk('spaces')->exists($project->attachment_path)) {
-                Storage::disk('spaces')->delete($project->attachment_path);
+        // Handle multiple file uploads for update
+        if ($request->hasFile('attachments')) {
+            // Delete old attachments if they exist
+            if ($project->attachment_paths) {
+                foreach ($project->attachment_paths as $oldPath) {
+                    if (Storage::disk('spaces')->exists($oldPath)) {
+                        Storage::disk('spaces')->delete($oldPath);
+                    }
+                }
             }
-            $project->attachment_path = $request->file('attachment')->store('project-attachment', 'spaces');
+
+            // Upload new attachments
+            $attachmentPaths = [];
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('project-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
+            $project->attachment_paths = $attachmentPaths;
         }
 
         $project->save();
 
-        return redirect()->route('user.technology-transfer.index', $project)
+        return redirect()->route('user.technology-transfer.show', $project)
             ->with('message', 'Project updated successfully.');
     }
 

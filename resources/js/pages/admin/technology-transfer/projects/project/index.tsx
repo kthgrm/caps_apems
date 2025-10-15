@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3 } from 'lucide-react';
+import { CalendarDays, Users, Building, Target, FileText, ExternalLink, Download, MapPin, Mail, Phone, User, CheckCircle, XCircle, CircleX, CircleCheck, CircleDot, Image, Edit3, File } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import InputError from "@/components/input-error";
 import { asset } from '@/lib/utils';
@@ -420,47 +420,60 @@ export default function TechnologyTransfer() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                <div className="flex items-center p-3 border rounded-lg">
-                                    {project.attachment_path ? (
-                                        <Dialog>
-                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                <Image className="h-4 w-4" />
-                                                <p className="text-sm">Project Attachment</p>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Project Attachment</DialogTitle>
-                                                    <DialogDescription>
-                                                        <img src={asset(project.attachment_path)} alt="Project Attachment" className="w-full h-auto" />
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                            </DialogContent>
-                                        </Dialog>
+                                <div className="space-y-2">
+                                    {project.attachment_paths && project.attachment_paths.length > 0 ? (
+                                        project.attachment_paths.map((path, index) => {
+                                            const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+
+                                            return (
+                                                <div key={index} className="flex items-center p-3 border rounded-lg">
+
+                                                    <a
+                                                        href={asset(path)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-blue-500 hover:underline w-full"
+                                                    >
+                                                        <File className="h-4 w-4 flex-shrink-0" />
+                                                        <span className="text-sm flex-1 truncate">{fileName}</span>
+                                                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                                    </a>
+                                                </div>
+                                            );
+                                        })
                                     ) : (
-                                        <div className="text-sm gap-2 flex items-center">
-                                            <Image className="h-4 w-4" />
-                                            No Attachment
+                                        <div className="flex items-center p-3 border rounded-lg">
+                                            <div className="text-sm gap-2 flex items-center">
+                                                <File className="h-4 w-4" />
+                                                No Attachment
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <ExternalLink className="h-4 w-4" />
-                                            {project.attachment_link ? (
-                                                <a
-                                                    href={project.attachment_link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-primary hover:underline text-sm flex items-center gap-1 truncate"
-                                                >
-                                                    {project.attachment_link}
-                                                </a>
-                                            ) : (
-                                                <span className="text-sm">No Attachment Link</span>
-                                            )}
+                                    {project.attachment_link ? (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2">
+                                                <ExternalLink className="h-4 w-4" />
+                                                <span className="text-sm">External Link</span>
+                                            </div>
+
+                                            <a
+                                                href={project.attachment_link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-500 hover:underline text-sm flex items-center gap-1"
+                                            >
+                                                {project.attachment_link}
+                                            </a>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="text-sm gap-2 flex items-center">
+                                            <ExternalLink className="h-4 w-4" />
+                                            No External Link
+                                        </div>
+                                    )}
+
                                 </div>
                             </CardContent>
                         </Card>

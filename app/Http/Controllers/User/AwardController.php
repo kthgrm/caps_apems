@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class AwardController extends Controller
@@ -53,7 +54,7 @@ class AwardController extends Controller
             'awarding_body' => 'required|string|max:255',
             'people_involved' => 'required|string|max:255',
 
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
         ]);
 
@@ -62,9 +63,16 @@ class AwardController extends Controller
         $award->campus_college_id = Auth::user()->campus_college_id;
         $award->fill($data);
 
-        if ($request->hasFile('attachment')) {
-            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'spaces');
+        // Handle multiple file uploads
+        $attachmentPaths = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('award-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
         }
+        $award->attachment_paths = $attachmentPaths;
+        $award->attachment_link = $request->input('attachment_link');
         $award->setCreatedAt(now('Asia/Manila'));
         $award->setUpdatedAt(now('Asia/Manila'));
         $award->save();
@@ -126,20 +134,36 @@ class AwardController extends Controller
         $data = $request->validate([
             'award_name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
-            'level' => 'required|in:local,regional,national,international',
             'date_received' => 'required|date',
             'event_details' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'awarding_body' => 'required|string|max:255',
             'people_involved' => 'required|string|max:255',
 
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:10240',
             'attachment_link' => 'nullable|url',
         ]);
 
         $award->fill($data);
-        if ($request->hasFile('attachment')) {
-            $award->attachment_path = $request->file('attachment')->store('award-attachments', 'spaces');
+
+        // Handle multiple file uploads for update
+        if ($request->hasFile('attachments')) {
+            // Delete old attachments if they exist
+            if ($award->attachment_paths) {
+                foreach ($award->attachment_paths as $oldPath) {
+                    if (Storage::disk('spaces')->exists($oldPath)) {
+                        Storage::disk('spaces')->delete($oldPath);
+                    }
+                }
+            }
+
+            // Upload new attachments
+            $attachmentPaths = [];
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('award-attachments', 'spaces');
+                $attachmentPaths[] = $path;
+            }
+            $award->attachment_paths = $attachmentPaths;
         }
         $award->setUpdatedAt(now('Asia/Manila'));
         $award->save();

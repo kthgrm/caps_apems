@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
 import { Project, type BreadcrumbItem } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast, Toaster } from 'sonner';
 import {
     FileText,
@@ -18,7 +18,10 @@ import {
     CircleX,
     CalendarDays,
     CircleCheck,
-    Download
+    Download,
+    X,
+    Upload,
+    Eye
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { asset } from '@/lib/utils';
@@ -30,14 +33,31 @@ type ProjectEditProps = {
 
 export default function ProjectEdit() {
     const { project, flash } = usePage<ProjectEditProps>().props;
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, put, processing, errors, transform } = useForm({
+    // Helper function to format date for HTML input
+    const formatDateForInput = (dateString: string | null | undefined): string => {
+        if (!dateString) return '';
+
+        try {
+            // Handle both ISO format and simple date format
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '';
+
+            // Format as yyyy-MM-dd
+            return date.toISOString().split('T')[0];
+        } catch (error) {
+            return '';
+        }
+    };
+
+    const { data, setData, processing, errors } = useForm({
         name: project.name || '',
         description: project.description || '',
-        category: project.category || '',
+        category: project.category || 'private',
         purpose: project.purpose || '',
-        start_date: project.start_date || '',
-        end_date: project.end_date || '',
+        start_date: formatDateForInput(project.start_date),
+        end_date: formatDateForInput(project.end_date),
         tags: project.tags || '',
         leader: project.leader || '',
         deliverables: project.deliverables || '',
@@ -51,18 +71,51 @@ export default function ProjectEdit() {
         is_assessment_based: project.is_assessment_based || false,
         monitoring_evaluation_plan: project.monitoring_evaluation_plan || '',
         sustainability_plan: project.sustainability_plan || '',
-        reporting_frequency: project.reporting_frequency?.toString() || '',
+        reporting_frequency: project.reporting_frequency?.toString() || '0',
         attachment_link: project.attachment_link || '',
-        remarks: project.remarks || '',
-        attachment: null as File | null
+        attachments: [] as File[]
     });
 
-    // Transform data before submission
-    transform((data) => ({
-        ...data,
-        is_assessment_based: Boolean(data.is_assessment_based),
-        reporting_frequency: parseInt(data.reporting_frequency) || 0,
-    }));
+    // Helper functions for file handling
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                return false;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                return false;
+            }
+
+            return true;
+        });
+
+        // Replace existing files instead of appending to avoid accumulation
+        setData('attachments', validFiles);
+    };
+
+    const clearAllFiles = () => {
+        setData('attachments', []);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -91,7 +144,19 @@ export default function ProjectEdit() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/user/technology-transfer/project/${project.id}`);
+
+        // Use router.post with _method for proper file upload handling
+        router.post(`/user/technology-transfer/project/${project.id}`, {
+            ...data,
+            _method: 'PUT'
+        }, {
+            onSuccess: () => {
+                toast.success('Project updated successfully!');
+            },
+            onError: (errors) => {
+                toast.error('Please check the form for errors.');
+            }
+        });
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -346,20 +411,6 @@ export default function ProjectEdit() {
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            {/* Remarks */}
-                            {project.remarks && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Remarks</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="p-3 bg-muted rounded-md text-sm">
-                                            {project.remarks}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
                         </div>
 
                         {/* Sidebar */}
@@ -444,29 +495,110 @@ export default function ProjectEdit() {
                                         Attachments
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div className="space-y-2">
+                                <CardContent className="space-y-4">
+                                    {/* Existing Attachments */}
+                                    {project.attachment_paths && project.attachment_paths.length > 0 && (
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">Current Attachments ({project.attachment_paths.length})</Label>
+                                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                                {project.attachment_paths.map((path, index) => {
+                                                    const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                                    return (
+                                                        <div
+                                                            key={`existing-${index}`}
+                                                            className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
+                                                        >
+                                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                                <div className="flex-shrink-0">
+                                                                    <FileText className="h-5 w-5 text-blue-500" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-sm font-medium truncate">{fileName}</p>
+                                                                </div>
+                                                            </div>
+                                                            <a
+                                                                href={asset(path)}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-blue-600 hover:underline text-sm flex items-center gap-1"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                                View
+                                                            </a>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
 
-                                        {project.attachment_path ? (
-                                            <>
-                                                <a href={asset(project.attachment_path)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline text-sm ">
-                                                    <Image className="h-4 w-4" />
-                                                    Current Attachment
-                                                </a>
-                                            </>
-                                        ) : (
-                                            <p className='text-sm'>No attachment uploaded</p>
-                                        )}
-                                        <Label className="text-sm font-light mt-2">Update Attachment</Label>
-                                        <Input
-                                            type="file"
-                                            accept=".jpeg, .jpg, .png"
-                                            size={1024}
-                                            onChange={(e) => {
-                                                setData('attachment', e.target.files && e.target.files[0] ? e.target.files[0] : null)
-                                            }}
-                                        />
+                                    {/* New File Upload */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="attachments">Upload New Files</Label>
+                                            {data.attachments.length > 0 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={clearAllFiles}
+                                                    disabled={processing}
+                                                    className="text-xs"
+                                                >
+                                                    Clear
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                ref={fileInputRef}
+                                                id="attachments"
+                                                type="file"
+                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                multiple={true}
+                                                onChange={(e) => addFiles(e.target.files)}
+                                                disabled={processing}
+                                                className="file:mr-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                        </p>
+                                        {errors.attachments && <p className="text-red-500 text-sm">{errors.attachments}</p>}
                                     </div>
+
+                                    {/* New File List */}
+                                    {data.attachments.length > 0 && (
+                                        <div className="space-y-2">
+                                            <Label className="text-base font-medium">New Files to Upload ({data.attachments.length})</Label>
+                                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                {data.attachments.map((file, index) => (
+                                                    <div
+                                                        key={`new-${file.name}-${index}`}
+                                                        className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="flex-shrink-0">
+                                                                {file.type.startsWith('image/') ? (
+                                                                    <Image className="h-5 w-5 text-green-500" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-green-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {formatFileSize(file.size)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* External Link */}
                                     <div>
                                         <Label className="text-sm font-light" htmlFor='attachment_link'>External Link</Label>
                                         <Input

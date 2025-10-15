@@ -30,10 +30,18 @@ class Project extends Model
         'monitoring_evaluation_plan',
         'sustainability_plan',
         'reporting_frequency',
-        'attachment_path',
+        'attachment_paths',
         'attachment_link',
         'remarks',
         'is_archived',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_assessment_based' => 'boolean',
+        'attachment_paths' => 'array',
+        'is_archived' => 'boolean',
     ];
 
     public function user()

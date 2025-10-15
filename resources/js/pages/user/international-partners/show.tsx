@@ -1,7 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import { Users, Calendar, MapPin, Building, FileText, Edit, ArrowLeft, Download, Share, Clock, Target, ExternalLink, Image } from 'lucide-react';
+import { Users, Calendar, MapPin, Building, FileText, Edit, ArrowLeft, Download, Share, Clock, Target, ExternalLink, Image, File as FileIcon, File } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
@@ -200,32 +200,43 @@ export default function InternationalPartnerDetails() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                <div className="flex items-center p-3 border rounded-lg">
-                                    {partner.attachment_path ? (
-                                        <Dialog>
-                                            <DialogTrigger className='flex items-center gap-2 text-blue-500 hover:underline w-full'>
-                                                <Image className="h-4 w-4" />
-                                                <p className="text-sm">Partnership Attachment</p>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>Partnership Attachment</DialogTitle>
-                                                    <DialogDescription>
-                                                        <img src={asset(partner.attachment_path)} alt="Partnership Attachment" className="w-full h-auto" />
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                            </DialogContent>
-                                        </Dialog>
+                                <div className="space-y-2">
+                                    {partner.attachment_paths && partner.attachment_paths.length > 0 ? (
+                                        partner.attachment_paths && partner.attachment_paths.map((path, index) => {
+                                            const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+
+                                            return (
+                                                <div key={index} className="flex items-center p-3 border rounded-lg">
+                                                    <a
+                                                        href={asset(path)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-blue-500 hover:underline w-full"
+                                                    >
+                                                        {isImage ? (
+                                                            <Image className="h-4 w-4 flex-shrink-0" />
+                                                        ) : (
+                                                            <File className="h-4 w-4 flex-shrink-0" />
+                                                        )}
+                                                        <span className="text-sm flex-1">{fileName}</span>
+                                                        <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                                                    </a>
+                                                </div>
+                                            );
+                                        })
                                     ) : (
-                                        <div className="text-sm gap-2 flex items-center">
-                                            <Image className="h-4 w-4" />
-                                            No Attachment
+                                        <div className="flex items-center p-3 border rounded-lg">
+                                            <div className="text-sm gap-2 flex items-center">
+                                                <File className="h-4 w-4" />
+                                                No Attachment
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex items-center justify-between p-3 border rounded-lg">
                                     {partner.attachment_link ? (
-                                        <div>
+                                        <div className="space-y-2">
                                             <div className="flex items-center gap-2">
                                                 <ExternalLink className="h-4 w-4" />
                                                 <span className="text-sm">External Link</span>
@@ -235,10 +246,9 @@ export default function InternationalPartnerDetails() {
                                                 href={partner.attachment_link}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-primary hover:underline text-sm flex items-center gap-1"
+                                                className="text-blue-500 hover:underline text-sm flex items-center gap-1"
                                             >
-                                                <ExternalLink className="h-3 w-3" />
-                                                Open Link
+                                                {partner.attachment_link}
                                             </a>
                                         </div>
                                     ) : (
@@ -247,7 +257,6 @@ export default function InternationalPartnerDetails() {
                                             No External Link
                                         </div>
                                     )}
-
                                 </div>
                             </CardContent>
                         </Card>

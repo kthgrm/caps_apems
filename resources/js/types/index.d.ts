@@ -109,7 +109,7 @@ export interface Project {
     sustainability_plan?: string | null;
     reporting_frequency?: number | null;
 
-    attachment_path?: string | null;
+    attachment_paths?: string[] | null;
     attachment_link?: string | null;
 
     remarks?: string | null;
@@ -135,6 +135,7 @@ export interface Award {
     people_involved: string;
 
     attachment_path?: string | null;
+    attachment_paths?: string[] | null;
     attachment_link?: string | null;
     is_archived: boolean;
 
@@ -172,7 +173,7 @@ export interface InternationalPartner {
     number_of_committee: number;
     narrative: string;
 
-    attachment_path?: string | null;
+    attachment_paths?: string[] | null;
     attachment_link?: string | null;
     is_archived: boolean;
 

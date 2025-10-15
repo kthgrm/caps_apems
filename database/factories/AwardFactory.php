@@ -23,7 +23,6 @@ class AwardFactory extends Factory
             'campus_college_id' => CampusCollege::factory(),
             'award_name' => fake()->sentence(3) . ' Award',
             'description' => fake()->paragraph(),
-            'level' => fake()->randomElement(['local', 'regional', 'national', 'international']),
             'date_received' => fake()->dateTimeBetween('-2 years', 'now'),
             'event_details' => fake()->sentence(),
             'location' => fake()->city() . ', ' . fake()->country(),
